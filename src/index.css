@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+@media (max-width: 1000px) {
+ 
+  .banner {
+    display: none;
+  }
+  
+  .logo-pic {
+    display: none;
+  }
+  .scrollbar-hidden::-webkit-scrollbar {
+    display: none;
+  }
+  
+}
