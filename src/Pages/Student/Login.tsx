@@ -15,7 +15,7 @@ const StudentLoginPage = () => {
         const response = await axios.post('/api/auth/login', values);
         dispatch(userLogin(response.data));
         toast.success("Student logged in successfully!");
-        console.log("working")
+
         navigate('/dashboard');
       } catch (error) {
         toast.error("Login failed. Please try again.");
@@ -23,7 +23,7 @@ const StudentLoginPage = () => {
       }
     };
   
-    return <Login role="Student" onSubmit={handleStudentLogin} signupUrl="/student/register" />;
+    return <Login  onSubmit={handleStudentLogin} signupUrl="/register" />;
   };
   
 

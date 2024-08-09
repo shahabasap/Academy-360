@@ -4,12 +4,12 @@ import ConfirmationModal from './ConfirmationModal'; // Adjust the path as neede
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { adminLogout } from '../../features/admin/adminSlice';
+import useRole from '../../hooks/RoleState';
 
-interface NavProps{
-  role:string
-}
 
-const AdminMainTopNav: React.FC<NavProps> = ({role}) => {
+
+const AdminMainTopNav: React.FC = ({}) => {
+  const role =useRole()
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const navigate=useNavigate()
   const dispatch=useDispatch()

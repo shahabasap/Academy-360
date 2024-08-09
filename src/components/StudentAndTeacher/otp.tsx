@@ -8,12 +8,11 @@ import { userLogin } from "../../features/user/userSlice";
 import NavTransparent from "../NavTransparent";
 import groupimage from "../../assets/Group.png";
 import { teacherLogin } from "../../features/teacher/teacherSlice";
+import useRole from '../../hooks/RoleState';
 
-interface OtpProps {
-  role: "student" | "teacher";
-}
 
-const Otp: React.FC<OtpProps> = ({ role }) => {
+const Otp: React.FC = () => {
+  const role=useRole().toLowerCase();
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();

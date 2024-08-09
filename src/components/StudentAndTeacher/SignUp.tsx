@@ -7,6 +7,7 @@ import groupImg from '../../assets/Group.png';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from 'react-router-dom';
+import useRole from "../../hooks/RoleState";
 
 // Validation Schema
 const validationSchema = Yup.object({
@@ -27,12 +28,12 @@ const validationSchema = Yup.object({
 });
 
 interface SignupProps {
-  role: string;
   onSubmit: (values: { name: string; username: string; password: string }) => Promise<void>;
   signinUrl: string;
 }
 
-const SignUp: React.FC<SignupProps> = ({ role, onSubmit, signinUrl }) => {
+const SignUp: React.FC<SignupProps> = ({ onSubmit, signinUrl }) => {
+  const role=useRole()
   const initialValues = { name: '', username: '', password: '' };
   const navigate = useNavigate();
 

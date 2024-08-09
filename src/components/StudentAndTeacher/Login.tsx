@@ -5,6 +5,7 @@ import google from "../../assets/google.png";
 import * as Yup from 'yup';
 import { Formik, Field, Form, ErrorMessage } from 'formik';
 import { ToastContainer } from 'react-toastify';
+import useRole from "../../hooks/RoleState";
 
 const validationSchema = Yup.object({
   username: Yup.string()
@@ -20,12 +21,12 @@ const validationSchema = Yup.object({
 });
 
 interface LoginProps {
-  role: string;
   onSubmit: (values: { username: string; password: string }) => Promise<void>;
   signupUrl: string; // New prop for signup URL
 }
 
-const Login: React.FC<LoginProps> = ({ role, onSubmit, signupUrl }) => {
+const Login: React.FC<LoginProps> = ({onSubmit, signupUrl }) => {
+  const role=useRole()
   const initialValues = { username: '', password: '' };
   const navigate = useNavigate();
 

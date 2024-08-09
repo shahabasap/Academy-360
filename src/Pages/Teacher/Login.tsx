@@ -22,7 +22,7 @@ const TeacherLoginPage = () => {
       }
     };
   
-    return <Login role="Teacher" onSubmit={handleTeacherLogin} signupUrl="/teacher/register" />;
+    return <Login  onSubmit={handleTeacherLogin} signupUrl="/teacher/register" />;
   };
 
 export default  TeacherLoginPage

@@ -20,7 +20,7 @@ const TeacherSignUpPage = () => {
     }
   };
 
-  return <SignUp role="Teacher" onSubmit={handleTeacherSignUp} signinUrl="/teacher/login" />;
+  return <SignUp  onSubmit={handleTeacherSignUp} signinUrl="/teacher/login" />;
 };
 
 

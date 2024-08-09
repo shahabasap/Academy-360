@@ -7,7 +7,7 @@ const Student = () => {
     <div className='flex flex-row bg-[#191C24] min-h-screen'>
       <AdminMainSidebar />
       <div className='flex flex-col w-full'>
-        <AdminMainTopNav role="Student" />
+        <AdminMainTopNav  />
         <div>
           {/* Main Contents here */}
           xcvb;oxfoigiofjgho

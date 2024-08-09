@@ -6,11 +6,11 @@ import { useDispatch } from 'react-redux';
 import doorbellImg from '../../assets/Doorbell.png';
 import calendarImg from '../../assets/Calendar Plus.png';
 import { teacherLogout } from '../../features/teacher/teacherSlice';
+import useRole from "../../hooks/RoleState";
 
-interface NavProps {
-  role: string;
-}
-const MainTopNav: React.FC<NavProps> = ({role}) => {
+
+const MainTopNav: React.FC = ({}) => {
+  const role =useRole()
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const navigate = useNavigate();

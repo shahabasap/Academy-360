@@ -9,7 +9,7 @@ const Summary = () => {
       <div className="flex flex-row">
         <MainSideNav />
         <div className="flex flex-col w-full">
-          <MainTopNav role="Teacher" />
+          <MainTopNav  />
 
           <div className="snap-x snap-mandatory overflow-x-auto scrollbar-hidden">
             <SubNav />

@@ -22,7 +22,7 @@ const StudentSignUpPage = () => {
       }
     };
   
-    return <SignUp role="Student" onSubmit={handleStudentSignUp} signinUrl="/student/login" />;
+    return <SignUp  onSubmit={handleStudentSignUp} signinUrl="/student/login" />;
   };
 
   export default StudentSignUpPage
