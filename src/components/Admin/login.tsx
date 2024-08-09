@@ -1,39 +1,19 @@
 import React from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import axios from "axios";
-import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { useNavigate} from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { adminLogin } from '../../features/admin/adminSlice';
+import { ToastContainer } from 'react-toastify';
 
-
-// Validation schema
 const validationSchema = Yup.object({
   username: Yup.string().trim().required('Username is required'),
   password: Yup.string().trim().required('Password is required'),
 });
 
-const AdminLogin = () => {
-  const dispatch=useDispatch()
-  const navigate=useNavigate()
-  const handleSubmit = async(values: { username: string; password: string }) => {
-    try {
-      const adminData=await axios.post('/api/auth/admin/login', values);
-      if(adminData)
-      {
-        dispatch(adminLogin(adminData.data))
-        navigate('/admin/dashboard')
-      }
-      
+interface LoginProps {
+  onSubmit: (values: { username: string; password: string }) => Promise<void>;
+}
 
-    } catch (error) {
-      toast.error("Login failed. Please try again.");
-     
-    }
-  };
-
+const AdminLogin: React.FC<LoginProps> = ({ onSubmit }) => {
   return (
     <div className="bg-gray-900 text-white h-screen flex flex-col items-center justify-center space-y-8">
       <ToastContainer />
@@ -45,7 +25,7 @@ const AdminLogin = () => {
         <Formik
           initialValues={{ username: '', password: '' }}
           validationSchema={validationSchema}
-          onSubmit={handleSubmit}
+          onSubmit={onSubmit}
         >
           {({ isSubmitting }) => (
             <Form className="bg-gray-800 shadow-md rounded px-8 pt-6 pb-8 mb-4">
@@ -72,7 +52,7 @@ const AdminLogin = () => {
                   Password
                 </label>
                 <Field
-                  className="shadow appearance-none border border-red-500 rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
                   id="password"
                   name="password"
                   type="password"

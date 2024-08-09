@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ConfirmationModal from './ConfirmationModal';
+import { userLogout } from '../../features/user/userSlice';
+import { useDispatch } from 'react-redux';
 import doorbellImg from '../../assets/Doorbell.png';
 import calendarImg from '../../assets/Calendar Plus.png';
-import { useDispatch } from 'react-redux';
 import { teacherLogout } from '../../features/teacher/teacherSlice';
 
-const MainTopNav: React.FC = () => {
+interface NavProps {
+  role: string;
+}
+const MainTopNav: React.FC<NavProps> = ({role}) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const navigate = useNavigate();
@@ -17,9 +21,23 @@ const MainTopNav: React.FC = () => {
   };
 
   const confirmLogout = () => {
-     dispatch(teacherLogout())
-    // Perform logout logic here
-    navigate('/teacher'); // Redirect to the login page after logout
+    if(role=="Student")
+    {
+      dispatch(userLogout())
+      // Perform logout logic here
+      navigate('/login'); // Redirect to the login page after logout
+
+    }
+    else if(role=="Teacher")
+    {
+      dispatch(teacherLogout())
+      // Perform logout logic here
+      navigate('/teacher'); // Redirect to the login page after logout
+
+
+    }
+
+
     setIsModalOpen(false);
   };
 
@@ -31,7 +49,7 @@ const MainTopNav: React.FC = () => {
     <>
       <div className='flex flex-row justify-between items-center h-16 w-full border-b-4 border-black border-opacity-5 px-4 sm:px-20'>
         <div className='flex-shrink-0 sm:ml-6'>
-          <h1 className='font-bold text-xl '>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Student Dashboard</h1>
+          <h1 className='font-bold text-xl '>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {role} Dashboard</h1>
         </div>
         <div className='flex flex-row items-center space-x-4'>
           <img className='w-6 h-auto' src={doorbellImg} alt="Notification" />

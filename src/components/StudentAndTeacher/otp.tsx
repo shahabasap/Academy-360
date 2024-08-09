@@ -1,45 +1,43 @@
 import React, { useRef, useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { useDispatch } from "react-redux";
-import { teacherLogin } from "../../features/teacher/teacherSlice";
+import { userLogin } from "../../features/user/userSlice";
 import NavTransparent from "../NavTransparent";
 import groupimage from "../../assets/Group.png";
+import { teacherLogin } from "../../features/teacher/teacherSlice";
 
-const Otp = () => {
-  const dispatch = useDispatch();
+interface OtpProps {
+  role: "student" | "teacher";
+}
+
+const Otp: React.FC<OtpProps> = ({ role }) => {
   const location = useLocation();
   const navigate = useNavigate();
-
+  const dispatch = useDispatch();
+  
   const [otp, setOtp] = useState(["", "", "", ""]);
-  const [timer, setTimer] = useState<number>(0); // Time remaining in seconds
+  const [timer, setTimer] = useState<number>(300); // 5 minutes in seconds
   const inputRefs = useRef<HTMLInputElement[]>([]);
 
   useEffect(() => {
-    // Retrieve expiration time from local storage
-    const storedExpiry = localStorage.getItem("otpExpiry");
+    // Initialize timer from local storage
+    const storedExpiry = localStorage.getItem('otpExpiry');
     if (storedExpiry) {
       const expiryTime = Number(storedExpiry);
-      const currentTime = Date.now();
-      const remainingTime = Math.max(expiryTime - currentTime, 0);
+      const remainingTime = Math.max(expiryTime - Date.now(), 0);
       setTimer(Math.ceil(remainingTime / 1000));
-    } else {
-      // Set a new expiry time if none exists
-      const newExpiryTime = Date.now() + 5 * 60 * 1000; // 5 minutes from now
-      localStorage.setItem("otpExpiry", newExpiryTime.toString());
-      setTimer(300); // 5 minutes in seconds
     }
 
-    // Timer interval
+    // Start timer interval
     const intervalId = setInterval(() => {
-      setTimer((prev) => {
+      setTimer(prev => {
         if (prev <= 1) {
           clearInterval(intervalId);
           toast.error("OTP has expired. Please request a new one.");
           handleReset();
-          localStorage.removeItem("otpExpiry");
           return 0;
         }
         return prev - 1;
@@ -49,6 +47,12 @@ const Otp = () => {
     // Cleanup on component unmount
     return () => clearInterval(intervalId);
   }, []);
+
+  useEffect(() => {
+    // Store expiry time in local storage
+    const expiryTime = Date.now() + timer * 1000;
+    localStorage.setItem('otpExpiry', expiryTime.toString());
+  }, [timer]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -78,14 +82,19 @@ const Otp = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
     try {
       const { email } = location.state || { email: "" };
-      const response = await axios.post("/api/auth/teacher/verify", {
-        otp: otp.join(""),
-        email: email,
-      });
-      dispatch(teacherLogin(response.data));
-      navigate("/teacher/dashboard");
+      const response = await axios.post(`/api/auth/${role}/verify`, { otp: otp.join(""), email });
+      if(role=="student")
+      {
+        dispatch(userLogin(response.data));
+        navigate('/dashboard');
+      }else if(role=="teacher")
+      {
+        dispatch(teacherLogin(response.data));
+        navigate('/teacher/dashboard');
+      }
     } catch (error) {
       toast.error("OTP is invalid. Please try again.");
       console.log(error);
@@ -99,7 +108,7 @@ const Otp = () => {
     }
     // Clear timer and local storage
     setTimer(300);
-    localStorage.removeItem("otpExpiry");
+    localStorage.removeItem('otpExpiry');
   };
 
   return (
@@ -137,10 +146,7 @@ const Otp = () => {
                 ))}
               </div>
               <div className="flex justify-center mt-6 space-x-4">
-                <button
-                  type="submit"
-                  className="bg-[#0060FF] text-white rounded-md px-4 py-2"
-                >
+                <button type="submit" className="bg-[#0060FF] text-white rounded-md px-4 py-2">
                   Verify
                 </button>
                 <button
@@ -152,10 +158,7 @@ const Otp = () => {
                 </button>
               </div>
               <div className="text-center mt-4">
-                <p>
-                  Time Remaining: {Math.floor(timer / 60)}:
-                  {timer % 60 < 10 ? `0${timer % 60}` : timer % 60}
-                </p>
+                <p>Time Remaining: {Math.floor(timer / 60)}:{timer % 60 < 10 ? `0${timer % 60}` : timer % 60}</p>
               </div>
             </div>
           </div>

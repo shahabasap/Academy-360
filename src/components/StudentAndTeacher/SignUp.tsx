@@ -26,27 +26,21 @@ const validationSchema = Yup.object({
     .matches(/[0-9]/, 'Password must contain numbers'),
 });
 
+interface SignupProps {
+  role: string;
+  onSubmit: (values: { name: string; username: string; password: string }) => Promise<void>;
+  signinUrl: string;
+}
 
-const SignUp = () => {
+const SignUp: React.FC<SignupProps> = ({ role, onSubmit, signinUrl }) => {
   const initialValues = { name: '', username: '', password: '' };
-  const navigate=useNavigate()
-  const onSubmit = async(values: { name: string; username: string; password: string }) => {
-    try {
-      const response = await axios.post('/api/auth/register', values);
-      const sendOtp= await axios.post('/api/auth/otp',{email:response.data.username})
-      navigate('/verify', { state: { email: values.username } });
-    } catch (error) {
-      toast.error("Registration failed. Please try again.");
-      console.log(error);
-    }
-  };
+  const navigate = useNavigate();
 
   return (
     <>
       <NavTransparent />
-      
       <div className="flex flex-col md:flex-row md:p-20 items-start justify-start sm:p-8 p-2 lg:-mt-24">
-      <ToastContainer />
+        <ToastContainer />
         {/* Logo Section */}
         <div className="logo-pic md:flex-1 md:w-50 md:h-auto md:p-24 hidden md:block">
           <img src={groupImg} alt="Logo" />
@@ -63,7 +57,7 @@ const SignUp = () => {
               <div className="sm:px-4 md:p-10">
                 <div className="flex flex-col border border-black border-opacity-20 self-center px-6 py-8 sm:px-4 sm:py-4 md:p-10">
                   <h1 className="text-center text-[#295782] text-2xl font-bold">
-                    SignUp Here
+                    {role} Sign Up
                   </h1>
                   <Field
                     className="w-full border border-black border-opacity-20 rounded mt-5 p-2"
@@ -105,7 +99,7 @@ const SignUp = () => {
                   </div>
 
                   <button className="bg-[#0060FF] text-white rounded-md px-4 py-2" type="button"
-                  onClick={()=>{navigate('/login')}}>
+                  onClick={() => navigate(signinUrl)}>
                     Login
                   </button>
                 </div>

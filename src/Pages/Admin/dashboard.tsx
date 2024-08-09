@@ -1,13 +1,13 @@
 import React from 'react';
-import AdminMainSideNav from './AdminMainSideNav';
-import AdminMainTopNav from './AdminMainTopNav.';
+import AdminMainSidebar from '../../components/Admin/SideBar';
+import AdminMainTopNav from '../../components/Admin/TopNav';
 
 const AdminDash = () => {
   return (
     <div className='flex flex-row bg-[#191C24] min-h-screen'>
-      <AdminMainSideNav />
+      <AdminMainSidebar />
       <div className='flex flex-col w-full'>
-        <AdminMainTopNav />
+        <AdminMainTopNav role="Admin" />
         <div>
           {/* Main Contents here */}
           xcvb;oxfoigiofjgho
