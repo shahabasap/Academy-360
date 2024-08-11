@@ -4,7 +4,7 @@ import AdminMainSidebar from '../../components/Admin/SideBar';
 import AdminMainTopNav from '../../components/Admin/TopNav';
 import ConfirmationModal2 from '../../components/Admin/ConfirmationModal2'; // Adjust the path as needed
 
-interface Student {
+interface Teacher {
   _id: string;
   username: string;
   name: string;
@@ -13,11 +13,11 @@ interface Student {
 }
 
 const TeacherManagement = () => {
-  const [students, setStudents] = useState<Student[]>([]);
+  const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [actionInProgress, setActionInProgress] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentStudentId, setCurrentStudentId] = useState<string | null>(null);
+  const [currentTeacherId, setCurrentTeacherId] = useState<string | null>(null);
   const [currentAction, setCurrentAction] = useState<'block' | 'unblock' | null>(null);
 
   useEffect(() => {
@@ -26,8 +26,8 @@ const TeacherManagement = () => {
 
   const fetchTeachers = async () => {
     try {
-      const response: AxiosResponse<Student[]> = await axios.get('/api/admin/students');
-      setStudents(response.data);
+      const response: AxiosResponse<Teacher[]> = await axios.get('/api/admin/teachers');
+      setTeachers(response.data);
     } catch (error) {
       console.error('Error fetching teachers:', error);
       setError('Failed to load teachers. Please try again later.');
@@ -36,20 +36,20 @@ const TeacherManagement = () => {
 
   const handleBlockUnblock = (id: string, isBlocked: boolean) => {
     const action = isBlocked ? 'unblock' : 'block';
-    setCurrentStudentId(id);
+    setCurrentTeacherId(id);
     setCurrentAction(action);
     setIsModalOpen(true); // Open the modal
   };
 
   const confirmBlockUnblock = async () => {
-    if (!currentStudentId || !currentAction) return;
+    if (!currentTeacherId || !currentAction) return;
 
-    setActionInProgress(currentStudentId);
+    setActionInProgress(currentTeacherId);
     try {
       const endpoint =
         currentAction === 'unblock'
-          ? `/api/admin/student-unblock/${currentStudentId}`
-          : `/api/admin/student-block/${currentStudentId}`;
+          ? `/api/admin/teacher-unblock/${currentTeacherId}`
+          : `/api/admin/teacher-block/${currentTeacherId}`;
       await axios.put(endpoint);
       fetchTeachers();
     } catch (error) {
@@ -83,27 +83,27 @@ const TeacherManagement = () => {
                 </tr>
               </thead>
               <tbody>
-                {students.map((student) => (
-                  <tr key={student._id} className="bg-gray-800 border-b border-gray-700">
-                    <td className="px-6 py-4 font-medium whitespace-nowrap text-white">{student.name}</td>
-                    <td className="px-6 py-4">{student.username}</td>
+                {teachers.map((teacher) => (
+                  <tr key={teacher._id} className="bg-gray-800 border-b border-gray-700">
+                    <td className="px-6 py-4 font-medium whitespace-nowrap text-white">{teacher.name}</td>
+                    <td className="px-6 py-4">{teacher.username}</td>
                     <td className="px-6 py-4">
-                      {new Date(student.JoinedDate).toLocaleDateString()}
+                      {new Date(teacher.JoinedDate).toLocaleDateString()}
                     </td>
-                    <td className="px-6 py-4">{student.Is_block ? 'Blocked' : 'Active'}</td>
+                    <td className="px-6 py-4">{teacher.Is_block ? 'Blocked' : 'Active'}</td>
                     <td className="px-6 py-4">
                       <button
-                        onClick={() => handleBlockUnblock(student._id, student.Is_block)}
-                        disabled={actionInProgress === student._id}
+                        onClick={() => handleBlockUnblock(teacher._id, teacher.Is_block)}
+                        disabled={actionInProgress === teacher._id}
                         className={`font-medium px-4 py-2 rounded ${
-                          student.Is_block
+                          teacher.Is_block
                             ? 'bg-green-500 hover:bg-green-600 text-white'
                             : 'bg-red-500 hover:bg-red-600 text-white'
-                        } ${actionInProgress === student._id ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        } ${actionInProgress === teacher._id ? 'opacity-50 cursor-not-allowed' : ''}`}
                       >
-                        {actionInProgress === student._id
+                        {actionInProgress === teacher._id
                           ? 'Processing...'
-                          : student.Is_block
+                          : teacher.Is_block
                           ? 'Unblock'
                           : 'Block'}
                       </button>

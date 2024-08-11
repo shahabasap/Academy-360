@@ -23,7 +23,7 @@ const StudentLoginPage = () => {
       }
     };
   
-    return <Login  onSubmit={handleStudentLogin} signupUrl="/register" />;
+    return <Login  onSubmit={handleStudentLogin} signupUrl="/register" forgotpassURL="/forgotpassword" />;
   };
   
 

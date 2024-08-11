@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate,Link } from "react-router-dom";
 import NavTransparent from "../NavTransparent";
 import groupimage from "../../assets/Group.png";
 import google from "../../assets/google.png";
@@ -23,9 +23,10 @@ const validationSchema = Yup.object({
 interface LoginProps {
   onSubmit: (values: { username: string; password: string }) => Promise<void>;
   signupUrl: string; // New prop for signup URL
+  forgotpassURL:string
 }
 
-const Login: React.FC<LoginProps> = ({onSubmit, signupUrl }) => {
+const Login: React.FC<LoginProps> = ({onSubmit, signupUrl,forgotpassURL }) => {
   const role=useRole()
   const initialValues = { username: '', password: '' };
   const navigate = useNavigate();
@@ -67,7 +68,7 @@ const Login: React.FC<LoginProps> = ({onSubmit, signupUrl }) => {
                     placeholder="Password please"
                   />
                   <ErrorMessage name="password" component="div" className="text-red-500 text-sm" />
-                  <span className="mt-2">Forgot your password?</span>
+                 <Link to={forgotpassURL} > <span className="mt-2">Forgot your password?</span> </Link>
                   <button
                     className="mt-7 bg-[#295782] text-white rounded-md px-4 py-2"
                     type="submit"

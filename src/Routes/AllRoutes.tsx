@@ -6,6 +6,10 @@ import StudentLoginPage from '../Pages/Student/Login';
 import TeacherLoginPage from '../Pages/Teacher/Login';
 import Otp from '../Pages/Student/otp';
 import Summary from '../Pages/Student/Summary';
+import Fogotpassword from '../Pages/Student/forgotPassword';
+import Resetpassword from '../Pages/Student/resetPassword';
+import FogotpasswordTeacher from '../Pages/Teacher/forgotpassword';
+import ResetpasswordTeacher from '../Pages/Teacher/resetpassword';
 import TeacherSummary from '../Pages/Teacher/summary';
 import SignUp from '../Pages/Student/Signup';
 import TeacherOtp from '../Pages/Teacher/otp';
@@ -13,7 +17,7 @@ import TeacherSignUp from '../Pages/Teacher/Signup';
 import AdminLogin from '../Pages/Admin/login';
 import AdminDash from '../Pages/Admin/dashboard';
 import AdminStudent from '../Pages/Admin/student';
-import AdminTeacher from '../Pages/teacher';
+import AdminTeacher from '../Pages/Admin/teachers';
 import Home from '../components/Home';
 import TeacherProtectRoutes from './ProtectRoutes/TeacherProtectRoutes'
 import StudentProtectRoute  from './ProtectRoutes/StudentProtectRoute'
@@ -35,6 +39,8 @@ const AllRoutes = createBrowserRouter(
         <Route path="login" element={<StudentLoginPage />} />
         <Route path="verify" element={<Otp />} />
         <Route path="register" element={<SignUp />} />
+        <Route path="forgotpassword" element={<Fogotpassword />} />
+        <Route path="resetpassword/:token" element={<Resetpassword />} />
       </Route>
 
         <Route element={<StudentProtectRoute />}>
@@ -49,6 +55,8 @@ const AllRoutes = createBrowserRouter(
         <Route path="" element={<TeacherLoginPage />} />
         <Route path="verify" element={<TeacherOtp />} />
         <Route path="register" element={<TeacherSignUp />} />
+        <Route path="forgotpassword" element={<FogotpasswordTeacher />} />
+        <Route path="resetpassword/:token" element={<ResetpasswordTeacher />} />
         </Route>
         <Route element={<TeacherProtectRoutes  />}>
           <Route path="dashboard" element={<TeacherSummary />} />

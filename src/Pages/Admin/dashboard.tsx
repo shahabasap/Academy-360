@@ -10,7 +10,7 @@ const AdminDash = () => {
         <AdminMainTopNav  />
         <div>
           {/* Main Contents here */}
-          xcvb;oxfoigiofjgho
+          Dashaboard
         </div>
       </div>
     </div>
