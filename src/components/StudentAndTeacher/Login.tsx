@@ -3,7 +3,7 @@ import NavTransparent from "../NavTransparent";
 import groupimage from "../../assets/Group.png";
 import * as Yup from 'yup';
 import { Formik, Field, Form, ErrorMessage } from 'formik';
-import { ToastContainer } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 import { GoogleLogin, CredentialResponse } from '@react-oauth/google';
 import{gapi} from 'gapi-script'
 import { useEffect } from "react";
@@ -65,7 +65,9 @@ const Login: React.FC<LoginProps> = ({ onSubmit, signupUrl, forgotpassURL }) => 
         name:decodedCredential.name,
         
       }
-      const response=await axios.post('/api/auth/google-signin',{data,role})
+      try {
+        const response=await axios.post('/api/auth/google-signin',{data,role})
+      
       
       if(role=="Student")
       {
@@ -77,6 +79,11 @@ const Login: React.FC<LoginProps> = ({ onSubmit, signupUrl, forgotpassURL }) => 
          dispatch(teacherLogin(response.data))
          navigate('/teacher/dashboard')
       }
+        
+      } catch (error) {
+         toast.error("You are blocked")
+      }
+      
     }
   };
 

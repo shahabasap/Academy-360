@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 const AdminMainSideNav: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const location = useLocation(); // Get the current path
 
   const handleToggle = () => {
     setIsOpen(!isOpen);
@@ -40,7 +41,7 @@ const AdminMainSideNav: React.FC = () => {
             />
           </div>
 
-          <div className="flex flex-col  sm:ml-10">
+          <div className="flex flex-col sm:ml-10">
             <h1 className="text-[#66608C] text-xl md:text-2xl font-bold">ACADEMY 360</h1>
             <h3 className="text-[#e0dfe2] text-sm md:text-base font-light">We are the best</h3>
           </div>
@@ -49,27 +50,35 @@ const AdminMainSideNav: React.FC = () => {
         <div className="w-full h-full p-4">
           <div className="bg-[#191C24] border text-white border-[#2E236C] rounded-md p-4 h-full">
             <ul className="mt-2">
-            <Link to="/admin/dashboard">
-              <li
-                className="mt-2 hover:bg-[#66608C] p-2 hover:text-white rounded-md cursor-pointer text-sm md:text-base"
-                onClick={handleItemClick}
-              >
-               Dashboard
-              </li></Link>
+              <Link to="/admin/dashboard">
+                <li
+                  className={`mt-2 p-2 rounded-md cursor-pointer text-sm md:text-base ${
+                    location.pathname === '/admin/dashboard' ? 'bg-[#66608C] text-white' : ''
+                  }`}
+                  onClick={handleItemClick}
+                >
+                  Dashboard
+                </li>
+              </Link>
               <Link to="/admin/students">
-              <li
-                className="mt-2 hover:bg-[#66608C] p-2 hover:text-white rounded-md cursor-pointer text-sm md:text-base"
-                onClick={handleItemClick}
-              >
-               Students
-              </li></Link>
+                <li
+                  className={`mt-2 p-2 rounded-md cursor-pointer text-sm md:text-base ${
+                    location.pathname === '/admin/students' ? 'bg-[#66608C] text-white' : ''
+                  }`}
+                  onClick={handleItemClick}
+                >
+                  Students
+                </li>
+              </Link>
               <Link to="/admin/teachers">
-              <li
-                className="mt-2 hover:bg-[#66608C] p-2 hover:text-white rounded-md cursor-pointer text-sm md:text-base"
-                onClick={handleItemClick}
-              >
-                Teachers
-              </li>
+                <li
+                  className={`mt-2 p-2 rounded-md cursor-pointer text-sm md:text-base ${
+                    location.pathname === '/admin/teachers' ? 'bg-[#66608C] text-white' : ''
+                  }`}
+                  onClick={handleItemClick}
+                >
+                  Teachers
+                </li>
               </Link>
             </ul>
           </div>

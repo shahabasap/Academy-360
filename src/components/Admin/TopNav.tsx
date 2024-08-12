@@ -35,7 +35,7 @@ const AdminMainTopNav: React.FC = ({}) => {
       <div className='flex flex-row justify-between items-center h-16 w-full border-b border-[#66608C] px-4 text-white bg-black'>
         <div className='flex-shrink-0'>
           <h1 className='font-bold text-xl'>
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {role} Dashboard
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {role}  Panel
           </h1>
         </div>
         <div className='flex flex-row items-center space-x-4'>

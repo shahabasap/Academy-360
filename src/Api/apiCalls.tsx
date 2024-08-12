@@ -1,5 +1,5 @@
 import axios, { AxiosResponse } from 'axios';
-
+import DashboardData from '../types/dashboard'
 class ApiController {
 
   // Student---------------------------------
@@ -33,6 +33,20 @@ class ApiController {
       return undefined;
     }
   }
+
+
+  
+  async  AdminDashboard(): Promise<DashboardData | undefined> {
+    try {
+      const response: AxiosResponse<DashboardData> = await axios.get('/api/admin/dashboard');
+      return response.data;
+    } catch (error: unknown) {
+      console.error('Failed to fetch dashboard data:', axios.isAxiosError(error) ? error.response?.data || error.message : error);
+      return undefined;
+    }
+  }
 }
+
+
 
 export default new ApiController();
