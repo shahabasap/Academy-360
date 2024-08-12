@@ -9,6 +9,7 @@ import { TeacherData, teacherLogout } from '../../features/teacher/teacherSlice'
 import useRole from "../../hooks/RoleState";
 import { useSelector } from 'react-redux';
 import { gapi } from 'gapi-script';
+import ApiController from '../../Api/apiCalls'
 
 const MainTopNav: React.FC = () => {
   const role = useRole();
@@ -37,12 +38,14 @@ const MainTopNav: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const confirmLogout = () => {
+  const confirmLogout = async() => {
     if (role === "Student") {
+      await ApiController.StudentLogout()
       handleGoogleLogout(); // Google logout for student
       dispatch(userLogout());
       navigate('/login'); // Redirect to the login page after logout
     } else if (role === "Teacher") {
+      await ApiController.TeacherLogout()
       handleGoogleLogout(); // Google logout for teacher
       dispatch(teacherLogout());
       navigate('/teacher'); // Redirect to the login page after logout

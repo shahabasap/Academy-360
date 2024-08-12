@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { adminLogout } from '../../features/admin/adminSlice';
 import useRole from '../../hooks/RoleState';
+import ApiController from '../../Api/apiCalls'
 
 
 
@@ -18,7 +19,8 @@ const AdminMainTopNav: React.FC = ({}) => {
     setIsModalOpen(true);
   };
 
-  const confirmLogout = () => {
+  const confirmLogout =async() => {
+    await ApiController.AdminLogout()
     dispatch(adminLogout())
    navigate('/admin')
     setIsModalOpen(false);
