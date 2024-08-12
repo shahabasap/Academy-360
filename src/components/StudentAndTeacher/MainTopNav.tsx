@@ -1,48 +1,67 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ConfirmationModal from './ConfirmationModal';
-import { userLogout } from '../../features/user/userSlice';
+import { userData, userLogout } from '../../features/user/userSlice';
 import { useDispatch } from 'react-redux';
 import doorbellImg from '../../assets/Doorbell.png';
 import calendarImg from '../../assets/Calendar Plus.png';
-import { teacherLogout } from '../../features/teacher/teacherSlice';
+import { TeacherData, teacherLogout } from '../../features/teacher/teacherSlice';
 import useRole from "../../hooks/RoleState";
+import { useSelector } from 'react-redux';
+import { gapi } from 'gapi-script';
 
-
-const MainTopNav: React.FC = ({}) => {
-  const role =useRole()
+const MainTopNav: React.FC = () => {
+  const role = useRole();
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const navigate = useNavigate();
-  const dispatch=useDispatch()
+  const dispatch = useDispatch();
+  const user = useSelector(userData);
+  const teacher = useSelector(TeacherData);
+
+  console.log("user=", user, "teacher", teacher);
+
+  useEffect(() => {
+    function initGoogleAPI() {
+      gapi.load('client:auth2', () => {
+        gapi.auth2.init({
+          client_id: '997785840858-98tge9f5fb548ukv3sh2mb646dpq594b.apps.googleusercontent.com',
+          scope: ''
+        });
+      });
+    }
+    initGoogleAPI();
+  }, []);
 
   const handleLogout = () => {
     setIsModalOpen(true);
   };
 
   const confirmLogout = () => {
-    if(role=="Student")
-    {
-      dispatch(userLogout())
-      // Perform logout logic here
+    if (role === "Student") {
+      handleGoogleLogout(); // Google logout for student
+      dispatch(userLogout());
       navigate('/login'); // Redirect to the login page after logout
-
-    }
-    else if(role=="Teacher")
-    {
-      dispatch(teacherLogout())
-      // Perform logout logic here
+    } else if (role === "Teacher") {
+      handleGoogleLogout(); // Google logout for teacher
+      dispatch(teacherLogout());
       navigate('/teacher'); // Redirect to the login page after logout
-
-
     }
-
-
     setIsModalOpen(false);
   };
 
   const cancelLogout = () => {
     setIsModalOpen(false);
+  };
+
+  const handleGoogleLogout = () => {
+    const auth2 = gapi.auth2.getAuthInstance();
+    if (auth2 != null) {
+      auth2.signOut().then(() => {
+        auth2.disconnect();
+        console.log('User logged out from Google.');
+      });
+    }
   };
 
   return (

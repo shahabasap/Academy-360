@@ -36,6 +36,8 @@ export const { userLogin, userLogout } = userSlice.actions;
 
 export const selectUser = (state: { userInfo: UserState }) => state.userInfo.login;
 export const role = (state: { userInfo: UserState }) => state.userInfo.role;
+export const userData = (state: { userInfo: UserState }) => state.userInfo.user;
+
 
 
 export default userSlice.reducer;

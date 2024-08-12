@@ -36,5 +36,6 @@ export const { teacherLogin, teacherLogout } = teacherSlice.actions;
 
 export const selectTeacher = (state: { teacher: TeacherState }) => state.teacher.login;
 export const  role = (state: { teacher: TeacherState }) => state.teacher.role;
+export const  TeacherData = (state: { teacher: TeacherState }) => state.teacher.teacher;
 
 export default teacherSlice.reducer;
