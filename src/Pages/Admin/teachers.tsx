@@ -20,14 +20,19 @@ const TeacherManagement = () => {
   const [currentTeacherId, setCurrentTeacherId] = useState<string | null>(null);
   const [currentAction, setCurrentAction] = useState<'block' | 'unblock' | null>(null);
 
-  useEffect(() => {
-    fetchTeachers();
-  }, []);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
+  const [itemsPerPage] = useState<number>(10); // Number of teachers per page
 
-  const fetchTeachers = async () => {
+  useEffect(() => {
+    fetchTeachers(currentPage);
+  }, [currentPage]);
+
+  const fetchTeachers = async (page: number) => {
     try {
-      const response: AxiosResponse<Teacher[]> = await axios.get('/api/admin/teachers');
-      setTeachers(response.data);
+      const response: AxiosResponse<{ data: Teacher[], totalPages: number }> = await axios.get(`/api/admin/teachers?page=${page}&limit=${itemsPerPage}`);
+      setTeachers(response.data.data); // Adjust to match the API response structure
+      setTotalPages(response.data.totalPages);
     } catch (error) {
       console.error('Error fetching teachers:', error);
       setError('Failed to load teachers. Please try again later.');
@@ -51,13 +56,19 @@ const TeacherManagement = () => {
           ? `/api/admin/teacher-unblock/${currentTeacherId}`
           : `/api/admin/teacher-block/${currentTeacherId}`;
       await axios.put(endpoint);
-      fetchTeachers();
+      fetchTeachers(currentPage);
     } catch (error) {
       console.error(`Error updating teacher status:`, error);
       setError(`Failed to ${currentAction} teacher. Please try again.`);
     } finally {
       setActionInProgress(null);
       setIsModalOpen(false); // Close the modal after action
+    }
+  };
+
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
     }
   };
 
@@ -112,6 +123,27 @@ const TeacherManagement = () => {
                 ))}
               </tbody>
             </table>
+
+            {/* Pagination Controls */}
+            <div className="flex justify-between items-center mt-4">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="px-4 py-2 bg-gray-700 text-white rounded disabled:opacity-50"
+              >
+                Previous
+              </button>
+              <span className="text-white">
+                Page {currentPage} of {totalPages}
+              </span>
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="px-4 py-2 bg-gray-700 text-white rounded disabled:opacity-50"
+              >
+                Next
+              </button>
+            </div>
           </div>
         </div>
       </div>

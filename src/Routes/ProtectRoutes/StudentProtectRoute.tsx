@@ -11,7 +11,7 @@ const StudentProtectRoute: React.FC = () => {
  const isAuthenticated=useSelector(selectUser)
 
   if (!isAuthenticated ) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/login" replace />;
   }
 
   return <Outlet />;

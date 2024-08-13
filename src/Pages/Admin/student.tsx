@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios, { AxiosResponse } from 'axios';
 import AdminMainSidebar from '../../components/Admin/SideBar';
 import AdminMainTopNav from '../../components/Admin/TopNav';
-import ConfirmationModal2 from '../../components/Admin/ConfirmationModal2'; // Adjust the path as needed
+import ConfirmationModal2 from '../../components/Admin/ConfirmationModal2';
 
 interface Student {
   _id: string;
@@ -20,14 +20,19 @@ const TeacherManagement = () => {
   const [currentStudentId, setCurrentStudentId] = useState<string | null>(null);
   const [currentAction, setCurrentAction] = useState<'block' | 'unblock' | null>(null);
 
-  useEffect(() => {
-    fetchTeachers();
-  }, []);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const pageSize = 3;
 
-  const fetchTeachers = async () => {
+  useEffect(() => {
+    fetchTeachers(currentPage);
+  }, [currentPage]);
+
+  const fetchTeachers = async (page: number) => {
     try {
-      const response: AxiosResponse<Student[]> = await axios.get('/api/admin/students');
-      setStudents(response.data);
+      const response: AxiosResponse = await axios.get(`/api/admin/students?page=${page}&pageSize=${pageSize}`);
+      setStudents(response.data.data);
+      setTotalPages(response.data.totalPages);
     } catch (error) {
       console.error('Error fetching teachers:', error);
       setError('Failed to load teachers. Please try again later.');
@@ -38,7 +43,7 @@ const TeacherManagement = () => {
     const action = isBlocked ? 'unblock' : 'block';
     setCurrentStudentId(id);
     setCurrentAction(action);
-    setIsModalOpen(true); // Open the modal
+    setIsModalOpen(true);
   };
 
   const confirmBlockUnblock = async () => {
@@ -51,13 +56,19 @@ const TeacherManagement = () => {
           ? `/api/admin/student-unblock/${currentStudentId}`
           : `/api/admin/student-block/${currentStudentId}`;
       await axios.put(endpoint);
-      fetchTeachers();
+      fetchTeachers(currentPage); // Refresh the current page data
     } catch (error) {
       console.error(`Error updating teacher status:`, error);
       setError(`Failed to ${currentAction} teacher. Please try again.`);
     } finally {
       setActionInProgress(null);
-      setIsModalOpen(false); // Close the modal after action
+      setIsModalOpen(false);
+    }
+  };
+
+  const handlePageChange = (newPage: number) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
     }
   };
 
@@ -112,6 +123,25 @@ const TeacherManagement = () => {
                 ))}
               </tbody>
             </table>
+            <div className="flex justify-between items-center mt-4">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded disabled:opacity-50"
+              >
+                Previous
+              </button>
+              <span className="text-white">
+                Page {currentPage} of {totalPages}
+              </span>
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded disabled:opacity-50"
+              >
+                Next
+              </button>
+            </div>
           </div>
         </div>
       </div>

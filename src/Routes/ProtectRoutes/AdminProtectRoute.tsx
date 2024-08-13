@@ -10,7 +10,7 @@ const AdminProtectRoute: React.FC = () => {
  const isAuthenticated =useSelector(selectAdmin)
 
   if (!isAuthenticated) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/admin" replace />;
   }
 
   return <Outlet />;

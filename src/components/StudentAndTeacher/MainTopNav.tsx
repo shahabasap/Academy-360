@@ -20,7 +20,7 @@ const MainTopNav: React.FC = () => {
   const user = useSelector(userData);
   const teacher = useSelector(TeacherData);
 
-  console.log("user=", user, "teacher", teacher);
+
 
   useEffect(() => {
     function initGoogleAPI() {
@@ -42,13 +42,15 @@ const MainTopNav: React.FC = () => {
     if (role === "Student") {
       await ApiController.StudentLogout()
       handleGoogleLogout(); // Google logout for student
-      dispatch(userLogout());
       navigate('/login'); // Redirect to the login page after logout
+      dispatch(userLogout());
+    
     } else if (role === "Teacher") {
       await ApiController.TeacherLogout()
       handleGoogleLogout(); // Google logout for teacher
-      dispatch(teacherLogout());
       navigate('/teacher'); // Redirect to the login page after logout
+      dispatch(teacherLogout());
+     
     }
     setIsModalOpen(false);
   };

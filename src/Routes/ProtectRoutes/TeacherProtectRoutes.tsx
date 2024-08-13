@@ -10,7 +10,7 @@ const TeacherProtectRoutes: React.FC = () => {
  const isAuthenticated=useSelector(selectTeacher)
 
   if (!isAuthenticated) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/teacher" replace />;
   }
 
   return <Outlet />;
