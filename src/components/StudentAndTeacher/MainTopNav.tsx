@@ -1,96 +1,129 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
 import ConfirmationModal from './ConfirmationModal';
-import { userData, userLogout } from '../../features/user/userSlice';
+import useRole from '../../hooks/RoleState';
+import ApiController from '../../Api/apiCalls';
+import { Outlet, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import doorbellImg from '../../assets/Doorbell.png';
-import calendarImg from '../../assets/Calendar Plus.png';
-import { TeacherData, teacherLogout } from '../../features/teacher/teacherSlice';
-import useRole from "../../hooks/RoleState";
-import { useSelector } from 'react-redux';
-import { gapi } from 'gapi-script';
-import ApiController from '../../Api/apiCalls'
+import { userLogout } from '../../features/user/userSlice';
+import { teacherLogout } from '../../features/teacher/teacherSlice';
+import { FaUser, FaSignOutAlt, FaBell, FaCalendarPlus } from 'react-icons/fa'; // Imported icons
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
-const MainTopNav: React.FC = () => {
-  const role = useRole();
-  const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+const Navbar = () => {
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const user = useRole();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const user = useSelector(userData);
-  const teacher = useSelector(TeacherData);
-
-
-
-  useEffect(() => {
-    function initGoogleAPI() {
-      gapi.load('client:auth2', () => {
-        gapi.auth2.init({
-          client_id: '997785840858-98tge9f5fb548ukv3sh2mb646dpq594b.apps.googleusercontent.com',
-          scope: ''
-        });
-      });
-    }
-    initGoogleAPI();
-  }, []);
 
   const handleLogout = () => {
+    setIsDropdownOpen(false);
     setIsModalOpen(true);
   };
 
-  const confirmLogout = async() => {
-    if (role === "Student") {
-      await ApiController.StudentLogout()
-      handleGoogleLogout(); // Google logout for student
-      navigate('/login'); // Redirect to the login page after logout
-      dispatch(userLogout());
-    
-    } else if (role === "Teacher") {
-      await ApiController.TeacherLogout()
-      handleGoogleLogout(); // Google logout for teacher
-      navigate('/teacher'); // Redirect to the login page after logout
-      dispatch(teacherLogout());
-     
-    }
-    setIsModalOpen(false);
-  };
-
   const cancelLogout = () => {
+    setIsDropdownOpen(false);
     setIsModalOpen(false);
   };
 
-  const handleGoogleLogout = () => {
-    const auth2 = gapi.auth2.getAuthInstance();
-    if (auth2 != null) {
-      auth2.signOut().then(() => {
-        auth2.disconnect();
-        console.log('User logged out from Google.');
-      });
+  const confirmLogout = async () => {
+    let logoutResponse;
+
+    try {
+      if (user === "Student") {
+        logoutResponse = await ApiController.StudentLogout();
+        dispatch(userLogout());
+      } else if (user === "Teacher") {
+        logoutResponse = await ApiController.TeacherLogout();
+        dispatch(teacherLogout());
+      }
+      handleLogoutResponse(logoutResponse);
+      toast.success('Logout successful!');
+    } catch (error) {
+      handleLogoutError(error);
+      toast.error('Logout failed!');
     }
   };
+
+  const handleLogoutResponse = (response: any) => {
+    if (response) {
+      console.log("Logout successful:", response.data);
+      navigate('/login');
+    } else {
+      console.log("No response received.");
+    }
+  };
+
+  const handleLogoutError = (error: any) => {
+    console.error("Logout failed:", error);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    if (isDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isDropdownOpen]);
 
   return (
     <>
-      <div className='flex flex-row justify-between items-center h-16 w-full border-b-4 border-black border-opacity-5 px-4 sm:px-20'>
-        <div className='flex-shrink-0 sm:ml-6'>
-          <h1 className='font-bold text-xl '>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {role} Dashboard</h1>
+      <div className='sticky top-0 flex flex-row justify-between items-center h-16 w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 px-4 z-10 sm:px-20 shadow-lg'>
+        <div className='flex items-center'>
+          <img
+            className='h-12 w-12 md:h-16 md:w-16'
+            src="/src/assets/logo.png"
+            alt="Academy-360-logo"
+          />
+          <div className='flex flex-col ml-4'>
+            <h1 className='text-white text-xl md:text-2xl font-extrabold tracking-wide'>
+              ACADEMY 360
+            </h1>
+            <h3 className='text-white text-sm md:text-base font-light tracking-wide'>
+              Empowering Education
+            </h3>
+          </div>
         </div>
-        <div className='flex flex-row items-center space-x-4'>
-          <img className='w-6 h-auto' src={doorbellImg} alt="Notification" />
-          <img className='w-6 h-auto' src={calendarImg} alt="Calendar" />
-          <div className='relative'>
+
+        <div className='flex flex-row items-center space-x-6'>
+          <FaBell className='text-white w-6 h-auto cursor-pointer hover:text-yellow-300 transition-transform duration-300 transform hover:scale-110 ease-in-out' />
+          <FaCalendarPlus className='text-white w-6 h-auto cursor-pointer hover:text-green-300 transition-transform duration-300 transform hover:scale-110 ease-in-out' />
+          <div className='relative' ref={dropdownRef}>
             <span
-              className='w-11 h-11 border border-[#2E236C] border-opacity-5 rounded-full flex justify-center items-center text-[#2E236C] cursor-pointer'
+              className='w-11 h-11 border border-white border-opacity-30 rounded-full flex justify-center items-center text-[#2E236C] cursor-pointer bg-white hover:bg-gray-200 transition-colors duration-300 ease-in-out'
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
             >
-              A
+              <span className='font-bold text-lg'>A</span>
             </span>
             {isDropdownOpen && (
-              <div className='absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded shadow-lg'>
+              <div className='absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-xl'>
                 <button
-                  className='w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100'
+                  className='flex items-center w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-purple-600 transition-colors duration-300 ease-in-out'
+                  onClick={() => {
+                    navigate('/teacher/profile');
+                    setIsDropdownOpen(false);
+                  }}
+                >
+                  <FaUser className="text-purple-600 opacity-80 font-medium mr-3" />
+                  Profile
+                </button>
+                <button
+                  className='flex items-center w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-red-600 transition-colors duration-300 ease-in-out'
                   onClick={handleLogout}
                 >
+                  <FaSignOutAlt className="text-red-600 opacity-80 font-medium mr-3" />
                   Logout
                 </button>
               </div>
@@ -98,13 +131,17 @@ const MainTopNav: React.FC = () => {
           </div>
         </div>
       </div>
+
       <ConfirmationModal
         isOpen={isModalOpen}
         onClose={cancelLogout}
         onConfirm={confirmLogout}
       />
+      
+      <ToastContainer />
+      <Outlet />
     </>
   );
 };
 
-export default MainTopNav;
+export default Navbar;

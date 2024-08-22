@@ -10,7 +10,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ isOpen, onClose, 
   if (!isOpen) return null;
 
   return (
-    <div className='fixed inset-0 flex items-center justify-center bg-black bg-opacity-50'>
+    <div className='z-10 fixed inset-0 flex items-center justify-center bg-black bg-opacity-50'>
       <div className='bg-white rounded-lg shadow-lg p-6 max-w-sm mx-4'>
         <h2 className='text-lg font-semibold mb-4'>Confirm Logout</h2>
         <p className='mb-6'>Are you sure you want to log out?</p>

@@ -9,8 +9,7 @@ import { selectAdmin } from '../../features/admin/adminSlice';
 const AdminIsAuth: React.FC = () => {
  const isAuthenticated =useSelector(selectAdmin)
 
-  if (isAuthenticated) {
-
+  if (isAuthenticated) {    
     return <Navigate to="/admin/dashboard" replace />;
 };
   

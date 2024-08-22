@@ -25,16 +25,21 @@ const validationSchema = Yup.object({
     .min(8, 'Password must be at least 8 characters long')
     .matches(/[a-zA-Z]/, 'Password must contain letters')
     .matches(/[0-9]/, 'Password must contain numbers'),
+  confirmPassword: Yup.string()
+    .trim()
+    .required('Confirm Password is required')
+    .oneOf([Yup.ref('password'), ''], 'Passwords must match'),
+  
 });
 
 interface SignupProps {
-  onSubmit: (values: { name: string; username: string; password: string }) => Promise<void>;
+  onSubmit: (values: { name: string; username: string; password: string; confirmPassword: string }) => Promise<void>;
   signinUrl: string;
 }
 
 const SignUp: React.FC<SignupProps> = ({ onSubmit, signinUrl }) => {
   const role=useRole()
-  const initialValues = { name: '', username: '', password: '' };
+  const initialValues = { name: '', username: '', password: '', confirmPassword: '' };
   const navigate = useNavigate();
 
   return (
@@ -83,6 +88,15 @@ const SignUp: React.FC<SignupProps> = ({ onSubmit, signinUrl }) => {
                     placeholder="Enter your password"
                   />
                   <ErrorMessage name="password" component="div" className="text-red-500 text-sm" />
+                  
+                  {/* Confirm Password Field */}
+                  <Field
+                    className="w-full border border-black border-opacity-20 rounded mt-5 p-2"
+                    type="password"
+                    name="confirmPassword"
+                    placeholder="Confirm your password"
+                  />
+                  <ErrorMessage name="confirmPassword" component="div" className="text-red-500 text-sm" />
                   
                   <span className="mt-2">Forgot your password?</span>
                   <button

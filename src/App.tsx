@@ -1,15 +1,20 @@
-import React from 'react';
-import './index.css';
-import { RouterProvider } from 'react-router-dom';
-import router from './Routes/AllRoutes';
-
-
+import React from "react";
+import "./index.css";
+import { Route, RouterProvider, Routes } from "react-router-dom";
+import router from "./Routes/Students";
+import AdminRoute from "./Routes/AdminRoute";
+import TeacherRoute from "./Routes/TeacherRoute";
+import StudentRoute from "./Routes/Students"
 
 function App() {
   return (
- 
-  <RouterProvider router={router} />
-  )
+    <Routes>
+      <Route path="/*" element={<StudentRoute />} />
+      <Route path="/admin/*" element={<AdminRoute />} />
+      <Route path="/teacher/*" element={<TeacherRoute />} />
+      {/* <RouterProvider router={router} /> */}
+    </Routes>
+  );
 }
 
 export default App;

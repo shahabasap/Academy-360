@@ -15,10 +15,11 @@ const TeacherLoginPage = () => {
         const response = await axios.post('/api/auth/teacher/login', values);
         dispatch(teacherLogin(response.data));
         toast.success("Teacher logged in successfully!");
-        navigate('/teacher/dashboard');
-      } catch (error) {
-        toast.error("Login failed. Please try again.");
-        console.error(error);
+        navigate('/teacher/classroom');
+      } catch (error:any) {
+        
+        toast.error(`${error.response.data.error}`)
+
       }
     };
   

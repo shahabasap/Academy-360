@@ -4,7 +4,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from 'react-router-dom';
 
-const resetPassword = () => {
+const ResetPasswordStudent = () => {
     const navigate=useNavigate()
 
 
@@ -31,4 +31,4 @@ const resetPassword = () => {
     return <ResetPassword onSubmit={handleResetPassword} />
 }
 
-export default resetPassword
+export default ResetPasswordStudent

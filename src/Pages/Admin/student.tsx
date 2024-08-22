@@ -9,10 +9,10 @@ interface Student {
   username: string;
   name: string;
   Is_block: boolean;
-  JoinedDate: string;
+  Joined: string;
 }
 
-const TeacherManagement = () => {
+const StudentManagement = () => {
   const [students, setStudents] = useState<Student[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [actionInProgress, setActionInProgress] = useState<string | null>(null);
@@ -22,7 +22,7 @@ const TeacherManagement = () => {
 
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const pageSize = 3;
+  const pageSize = 10;
 
   useEffect(() => {
     fetchTeachers(currentPage);
@@ -99,7 +99,7 @@ const TeacherManagement = () => {
                     <td className="px-6 py-4 font-medium whitespace-nowrap text-white">{student.name}</td>
                     <td className="px-6 py-4">{student.username}</td>
                     <td className="px-6 py-4">
-                      {new Date(student.JoinedDate).toLocaleDateString()}
+                      {new Date(student.Joined).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4">{student.Is_block ? 'Blocked' : 'Active'}</td>
                     <td className="px-6 py-4">
@@ -156,4 +156,4 @@ const TeacherManagement = () => {
   );
 };
 
-export default TeacherManagement;
+export default StudentManagement;

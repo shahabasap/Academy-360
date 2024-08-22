@@ -88,11 +88,11 @@ const Otp: React.FC = () => {
       if(role=="student")
       {
         dispatch(userLogin(response.data));
-        navigate('/dashboard');
+        navigate('/classroom');
       }else if(role=="teacher")
       {
         dispatch(teacherLogin(response.data));
-        navigate('/teacher/dashboard');
+        navigate('/teacher/classroom');
       }
     } catch (error) {
       toast.error("OTP is invalid. Please try again.");

@@ -11,7 +11,7 @@ const StudentIsAuth: React.FC = () => {
  const isAuthenticated=useSelector(selectUser)
 
   if (isAuthenticated ) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/classroom" replace />;
     
   }
   return <Outlet />;

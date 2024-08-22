@@ -80,8 +80,10 @@ const Login: React.FC<LoginProps> = ({ onSubmit, signupUrl, forgotpassURL }) => 
          navigate('/teacher/dashboard')
       }
         
-      } catch (error) {
-         toast.error("You are blocked")
+      } catch (error:any) {
+         toast.error(`${error.response.data.error}`)
+        
+         
       }
       
     }
