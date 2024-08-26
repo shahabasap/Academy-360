@@ -1,6 +1,6 @@
 import React from "react";
-import MainSideNav from "../../components/StudentAndTeacher/MainSideNav";
-import MainTopNav from "../../components/StudentAndTeacher/MainTopNav";
+import MainSideNav from "../../components/StudentAndTeacher/Others/MainSideNav";
+import MainTopNav from "../../components/StudentAndTeacher/Others/MainTopNav";
 
 const Summary = () => {
   return (

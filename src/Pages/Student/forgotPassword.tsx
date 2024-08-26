@@ -1,4 +1,4 @@
-import ForgotPassword from '../../components/StudentAndTeacher/ForgotPassword';
+import ForgotPassword from '../../components/StudentAndTeacher/Others/ForgotPassword';
 import React from 'react';
 import axios from "axios";
 import { toast } from "react-toastify";

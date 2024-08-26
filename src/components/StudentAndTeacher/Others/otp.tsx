@@ -4,11 +4,11 @@ import axios from "axios";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useDispatch } from "react-redux";
-import { userLogin } from "../../features/user/userSlice";
-import NavTransparent from "../NavTransparent";
-import groupimage from "../../assets/Group.png";
-import { teacherLogin } from "../../features/teacher/teacherSlice";
-import useRole from '../../hooks/RoleState';
+import { userLogin } from "../../../features/user/userSlice";
+import NavTransparent from "../../NavTransparent";
+import groupimage from "../../../assets/Group.png";
+import { teacherLogin } from "../../../features/teacher/teacherSlice";
+import useRole from '../../../hooks/RoleState';
 
 
 const Otp: React.FC = () => {

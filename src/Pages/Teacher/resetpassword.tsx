@@ -1,4 +1,4 @@
-import ResetPassword from '../../components/StudentAndTeacher/ResetPassword'
+import ResetPassword from '../../components/StudentAndTeacher/Others/ResetPassword'
 import React from 'react'
 import axios from "axios";
 import { toast } from "react-toastify";

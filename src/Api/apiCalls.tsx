@@ -1,5 +1,6 @@
 import axios, { AxiosResponse } from 'axios';
 import DashboardData from '../types/dashboard'
+import { ClassroomData } from '../types/commonType';
 class ApiController {
 
   // Student---------------------------------
@@ -45,7 +46,58 @@ class ApiController {
       return undefined;
     }
   }
+
+  // Classrooms------------------------------
+  async  CreateClassroom(data:ClassroomData): Promise<any> {
+    try {
+      
+      const response: AxiosResponse<any> = await axios.post('/api/teacher/classroom',{data});
+      return response;
+     
+    } catch (error: unknown) {
+     
+      return error;
+    }
+  }
+  async  FetchTeacherClassrooms(id:string): Promise<any> {
+    try {
+      
+      const response: AxiosResponse<any> = await axios.get(`/api/teacher/classrooms/${id}`);
+      return response;
+     
+    } catch (error: unknown) {
+     
+      return error;
+    }
+  }
+  async FetchStudentsDataForInvitation (username: string, classroomid: string,page:number,limit:number ): Promise<any> {
+    try {
+        
+      const response = await axios.post('/api/teacher/students', {username:username,
+        classroomid:classroomid,
+        page:page,
+        limit:limit});
+
+        console.log(response)
+
+      return response;
+    } catch (error) {
+      return error;
+    }
+  };
+  async JoinClassroom (classroomid: string, teacherid: string ): Promise<any> {
+    try {
+      const response = await axios.post('/api/teacher/joinclassroom', {classroomid, teacherid});
+      return response;
+    } catch (error) {
+      return error;
+    }
+  };
+  
+
 }
+
+  
 
 
 

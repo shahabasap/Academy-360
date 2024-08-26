@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { teacherLogin } from "../../features/teacher/teacherSlice";
 import { toast } from "react-toastify";
-import Login from "../../components/StudentAndTeacher/Login"
+import Login from "../../components/StudentAndTeacher/Others/Login"
 
 // Teacher Login Page
 const TeacherLoginPage = () => {

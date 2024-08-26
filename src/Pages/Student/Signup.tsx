@@ -3,7 +3,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import SignUp from '../../components/StudentAndTeacher/SignUp';
+import SignUp from '../../components/StudentAndTeacher/Others/SignUp';
 
 
 // Student SignUp Page

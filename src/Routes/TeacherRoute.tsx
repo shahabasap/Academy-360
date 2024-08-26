@@ -6,13 +6,14 @@ import TeacherOtpPage from "../Pages/Teacher/otp";
 import TeacherSignUpPage from "../Pages/Teacher/Signup";
 import ResetpasswordTeacher from "../Pages/Teacher/resetpassword";
 import TeacherProtectRoutes from "./ProtectRoutes/TeacherProtectRoutes";
-import Summary from "../Pages/Teacher/summary";
+import Summary from "../Pages/Teacher/Dashboard/summary";
 import ForgotPasswordPage from "../Pages/Teacher/forgotpassword";
 import TeacherProfile from "../Pages/Teacher/Profile/Management";
-import Navbar from "../components/StudentAndTeacher/MainTopNav";
+import Navbar from "../components/StudentAndTeacher/Others/MainTopNav";
 import TeacherProfileOverview from "../Pages/Teacher/Profile/overview";
 import TeacherClassrooms from "../Pages/Teacher/Classroom/Classrooms";
 import ProfileTeacherClassrooms from "../Pages/Teacher/Profile/classroom";
+import StudentSummaryPage from "../Pages/Student/Dashboard/summary";
 
 
 function TeacherRoute() {
@@ -31,7 +32,7 @@ function TeacherRoute() {
         </Route>
         <Route element={<TeacherProtectRoutes />}>
         <Route element={<Navbar/>}>
-          <Route path="dashboard" element={<Summary />} />
+          <Route path="dashboard" element={<StudentSummaryPage />} />
           <Route path="classroom" element={<TeacherClassrooms />} />
           <Route path="profile" element={<TeacherProfileOverview />} />
           <Route path="profile/management" element={<TeacherProfile />} />

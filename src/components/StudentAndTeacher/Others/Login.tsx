@@ -1,6 +1,6 @@
 import { useNavigate, Link } from "react-router-dom";
-import NavTransparent from "../NavTransparent";
-import groupimage from "../../assets/Group.png";
+import NavTransparent from "../../NavTransparent";
+import groupimage from "../../../assets/Group.png";
 import * as Yup from 'yup';
 import { Formik, Field, Form, ErrorMessage } from 'formik';
 import { toast, ToastContainer } from 'react-toastify';
@@ -8,11 +8,11 @@ import { GoogleLogin, CredentialResponse } from '@react-oauth/google';
 import{gapi} from 'gapi-script'
 import { useEffect } from "react";
 import axios from 'axios';
-import useRole from "../../hooks/RoleState";
+import useRole from "../../../hooks/RoleState";
 import { jwtDecode } from 'jwt-decode';
 import { useDispatch } from "react-redux";
-import { userLogin } from "../../features/user/userSlice";
-import { teacherLogin } from "../../features/teacher/teacherSlice";
+import { userLogin } from "../../../features/user/userSlice";
+import { teacherLogin } from "../../../features/teacher/teacherSlice";
 const validationSchema = Yup.object({
   username: Yup.string()
     .trim()

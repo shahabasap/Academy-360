@@ -1,10 +1,10 @@
 import { useParams, useNavigate } from "react-router-dom";
-import NavTransparent from "../NavTransparent";
-import groupimage from "../../assets/Group.png";
+import NavTransparent from "../../NavTransparent";
+import groupimage from '../../../assets/Group.png';
 import * as Yup from 'yup';
 import { Formik, Field, Form, ErrorMessage } from 'formik';
 import { ToastContainer } from 'react-toastify';
-import useRole from "../../hooks/RoleState";
+import useRole from "../../../hooks/RoleState";
 
 const validationSchema = Yup.object({
   password: Yup.string()

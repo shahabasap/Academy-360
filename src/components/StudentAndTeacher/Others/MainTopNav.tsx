@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import ConfirmationModal from './ConfirmationModal';
-import useRole from '../../hooks/RoleState';
-import ApiController from '../../Api/apiCalls';
+import useRole from '../../../hooks/RoleState';
+import ApiController from '../../../Api/apiCalls';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { userLogout } from '../../features/user/userSlice';
-import { teacherLogout } from '../../features/teacher/teacherSlice';
+import { userLogout } from '../../../features/user/userSlice';
+import { teacherLogout } from '../../../features/teacher/teacherSlice';
 import { FaUser, FaSignOutAlt, FaBell, FaCalendarPlus } from 'react-icons/fa'; // Imported icons
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -88,18 +88,26 @@ const Navbar = () => {
             alt="Academy-360-logo"
           />
           <div className='flex flex-col ml-4'>
-            <h1 className='text-white text-xl md:text-2xl font-extrabold tracking-wide'>
+            <h1 className='text-white text-base sm:text-lg md:text-2xl font-extrabold tracking-wide mt-3'>
               ACADEMY 360
             </h1>
-            <h3 className='text-white text-sm md:text-base font-light tracking-wide'>
+            <h3 className='text-white sm:text-[3px] text-sm md:text-base font-light tracking-wide'>
               Empowering Education
             </h3>
           </div>
         </div>
 
-        <div className='flex flex-row items-center space-x-6'>
+        <div className='flex flex-row items-center space-x-4 md:space-x-6'>
+          {/* Show FaBell icon in all sizes */}
           <FaBell className='text-white w-6 h-auto cursor-pointer hover:text-yellow-300 transition-transform duration-300 transform hover:scale-110 ease-in-out' />
-          <FaCalendarPlus className='text-white w-6 h-auto cursor-pointer hover:text-green-300 transition-transform duration-300 transform hover:scale-110 ease-in-out' />
+
+          {/* Show FaCalendarPlus in different sizes for different screens */}
+          <div className='hidden sm:block md:hidden'>
+            <FaCalendarPlus className='text-white w-6 h-auto cursor-pointer hover:text-green-300 transition-transform duration-300 transform hover:scale-110 ease-in-out' />
+          </div>
+          
+
+          {/* Dropdown menu for smaller screens */}
           <div className='relative' ref={dropdownRef}>
             <span
               className='w-11 h-11 border border-white border-opacity-30 rounded-full flex justify-center items-center text-[#2E236C] cursor-pointer bg-white hover:bg-gray-200 transition-colors duration-300 ease-in-out'
@@ -118,6 +126,17 @@ const Navbar = () => {
                 >
                   <FaUser className="text-purple-600 opacity-80 font-medium mr-3" />
                   Profile
+                </button>
+                {/* Show Schedule button only in dropdown on smaller screens */}
+                <button
+                  className='flex items-center w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-green-600 transition-colors duration-300 ease-in-out'
+                  onClick={() => {
+                    navigate('/schedule');
+                    setIsDropdownOpen(false);
+                  }}
+                >
+                  <FaCalendarPlus className="text-green-600 opacity-80 font-medium mr-3" />
+                  Video Schedules
                 </button>
                 <button
                   className='flex items-center w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-red-600 transition-colors duration-300 ease-in-out'
