@@ -1,7 +1,6 @@
-import React from "react";
+
 import "./index.css";
-import { Route, RouterProvider, Routes } from "react-router-dom";
-import router from "./Routes/Students";
+import { Route , Routes } from "react-router-dom";
 import AdminRoute from "./Routes/AdminRoute";
 import TeacherRoute from "./Routes/TeacherRoute";
 import StudentRoute from "./Routes/Students"

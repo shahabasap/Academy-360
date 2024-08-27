@@ -19,6 +19,7 @@ import TeacherProfile from "../Pages/Teacher/Profile/Management";
 import TeacherClassrooms from "../Pages/Teacher/Classroom/Classrooms";
 import LandingPage from "../Pages/LandingPage";
 import TeacherSummaryPage from "../Pages/Teacher/Dashboard/summary";
+import StudentSummaryPage from "../Pages/Student/Dashboard/summary";
 
 
 
@@ -41,7 +42,7 @@ function StudentRoute() {
         </Route>
         <Route element={<StudentProtectRoute />}>\
         <Route element={<Navbar/>}>
-          <Route path="dashboard" element={<TeacherSummaryPage />} />
+          <Route path="dashboard" element={<StudentSummaryPage />} />
           <Route path="classroom" element={<TeacherClassrooms />} />
           <Route path="profile" element={<TeacherProfileOverview />} />
           <Route path="profile/management" element={<TeacherProfile/>} />

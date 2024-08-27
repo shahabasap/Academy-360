@@ -20,6 +20,11 @@ export interface IClassroom {
   worksid?: mongoose.Types.ObjectId[];
   announcementsid?: mongoose.Types.ObjectId[];
 }
+export interface JoinClassroomModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onJoin: (classroomId: string) => void;
+}
 export type StudentData = {
   studentid: mongoose.Types.ObjectId;
   IsAdded: boolean;
