@@ -15,7 +15,6 @@ const StudentLoginPage = () => {
         const response = await axios.post('/api/auth/login', values);
         dispatch(userLogin(response.data));
         toast.success("Student logged in successfully!");
-          console.log("is working")
         navigate('/classroom');
 
       } catch (error:any) {

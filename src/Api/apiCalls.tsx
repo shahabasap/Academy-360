@@ -78,8 +78,17 @@ class ApiController {
         page:page,
         limit:limit});
 
-        console.log(response)
+       
 
+      return response;
+    } catch (error) {
+      return error;
+    }
+  };
+  async addStudents (classroomid: string, studentid: string ): Promise<any> {
+    try {
+        
+      const response = await axios.get(`/api/teacher/addStudent?classroomid=${classroomid}&studentid=${studentid}`);
       return response;
     } catch (error) {
       return error;

@@ -9,6 +9,7 @@ import StudentRoute from "./Routes/Students"
 function App() {
   return (
     <Routes>
+        
       <Route path="/*" element={<StudentRoute />} />
       <Route path="/admin/*" element={<AdminRoute />} />
       <Route path="/teacher/*" element={<TeacherRoute />} />

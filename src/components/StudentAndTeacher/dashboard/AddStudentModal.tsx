@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import Table from '../HtmlComponets/table'; // Adjust the import path as necessary
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'; // Import the CSS
-import ApiController from '../../../Api/apiCalls'
 import { useSelector } from 'react-redux';
 import { selectTeacherClass } from '../../../features/teacher/teacherSlice';
 import useDebounce from '../../../hooks/debounce'; // Adjust the import path
+import ApiController from '../../../Api/apiCalls'
 
 interface Student {
   id: string;
@@ -20,6 +20,8 @@ interface AddStudentModalProps {
   classroomId: string;
   page: number;
   limit: number;
+  isInvited:boolean;
+  setisInvited:any
 }
 
 const AddStudentModal: React.FC<AddStudentModalProps> = ({ 
@@ -27,6 +29,8 @@ const AddStudentModal: React.FC<AddStudentModalProps> = ({
   onClose, 
   onAddStudent, 
   classroomId, 
+  isInvited,
+  setisInvited,
   page, 
   limit 
 }) => {
@@ -37,23 +41,32 @@ const AddStudentModal: React.FC<AddStudentModalProps> = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [totalStudents, setTotalStudents] = useState<number | null>(null);
-  const student = useSelector(selectTeacherClass);
+  const classroom = useSelector(selectTeacherClass);
+  
 
   useEffect(() => {
     if (isOpen) {
       fetchStudentsData();
+      setisInvited(false)
     }
-  }, [isOpen, debouncedSearchTerm, currentPage]); // Using debouncedSearchTerm
+  }, [isOpen, debouncedSearchTerm, currentPage,isInvited==true]); // Using debouncedSearchTerm
 
   const fetchStudentsData = async () => {
     setLoading(true);
     setError(null);
 
     try {
-      const StudentsData = await ApiController.FetchStudentsDataForInvitation(debouncedSearchTerm, student._id, currentPage, limit);
+      const StudentsData = await ApiController.FetchStudentsDataForInvitation(debouncedSearchTerm, classroom._id, currentPage, limit);
       const { Students, StudentCount } = StudentsData.data;
 
-      setStudents(Students ?? []);
+      // Map only the fields you need
+      const mappedStudents = Students.map((student: any) => ({
+        id: student._id,  // Store the id for use in action but not to show
+        name: student.name,
+        email: student.username,
+      }));
+
+      setStudents(mappedStudents ?? []);
       setTotalStudents(StudentCount ?? null);
     } catch (error) {
       setError('Failed to fetch students. Please try again.');
@@ -75,6 +88,7 @@ const AddStudentModal: React.FC<AddStudentModalProps> = ({
     }
   };
 
+  
   if (!isOpen) return null;
 
   const totalPages = Math.ceil((totalStudents ?? 0) / limit);
@@ -113,7 +127,8 @@ const AddStudentModal: React.FC<AddStudentModalProps> = ({
             <Table
               headers={[ 'Name', 'Email', 'Action']}
               data={students.map(student => ({
-                ...student,
+                name: student.name,
+                email: student.email,
                 action: (
                   <button
                     onClick={() => onAddStudent(student.id)}
