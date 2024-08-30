@@ -1,9 +1,7 @@
-import axios, { AxiosInstance, AxiosResponse } from 'axios';
-import { useNavigate } from 'react-router-dom';
-import { useCallback } from 'react';
+import axios, { AxiosInstance } from 'axios';
 
 // Create the axios instance outside of any hook or component
-const axiosInstance = axios.create({
+const axiosInstance: AxiosInstance = axios.create({
   baseURL: '/api',
   headers: {
     'Content-Type': 'application/json',
@@ -11,46 +9,40 @@ const axiosInstance = axios.create({
   withCredentials: true,
 });
 
+// Setup response interceptor
+axiosInstance.interceptors.response.use(
+  (response) => {
+   
+    return response;
+  },
+  (error) => {
+   
+
+    if (error.response) {
+     
+
+      switch (error.response.status) {
+        case 401:
+          // Handle unauthorized access (e.g., redirect to login page)
+          window.location.href = '/login';
+          break;
+        case 400:
+          // Redirect to a specific page for blocked access
+          window.location.href = '/blocked';
+          break;
+        default:
+          // Redirect to a general error page
+          window.location.href = '/error';
+      }
+    } else {
+      // Handle cases where there is no response
+      window.location.href = '/error';
+    }
+    return Promise.reject(error);
+  }
+);
+
 // Custom hook for API calls
 export const useApi = () => {
-  const navigate = useNavigate();
-
-  // Setup response interceptor
-  const setupInterceptors = useCallback(() => {
-    axiosInstance.interceptors.response.use(
-      (response) => {
-        console.log("is working...........");
-        return response;
-      },
-      (error) => {
-        if (error.response) {
-          switch (error.response.status) {
-            case 401:
-              navigate('/login');
-              break;
-            case 400:
-              navigate('/blocked');
-              break;
-            default:
-              navigate('/error');
-          }
-        } else {
-          navigate('/error');
-        }
-        return Promise.reject(error);
-      }
-    );
-  }, [navigate]);
-
-  // Call setupInterceptors when the hook is used
-  setupInterceptors();
-   return axiosInstance
-
+  return axiosInstance;
 };
-
-// Usage in a component
-// function MyComponent() {
-//   const { fetchTeacherClassrooms } = useApi();
-//
-//   // Use fetchTeacherClassrooms here
-// }

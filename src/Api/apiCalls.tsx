@@ -1,56 +1,55 @@
-import axios, { AxiosResponse } from 'axios';
+import { AxiosResponse } from 'axios';
 import DashboardData from '../types/dashboard'
 import { ClassroomData } from '../types/commonType';
 import { useApi } from './axiosInstance';
 
 
-const axiosInstance=useApi()
-
-console.log("apis",axiosInstance)
-
 class ApiController {
+
+   axiosInstance :any=useApi()
+
 
   // Student---------------------------------
 
-  async StudentLogout(): Promise<AxiosResponse | undefined> {
+  async StudentLogout(): Promise<any> {
     try {
-      return await axios.get('/api/auth/logout');
+      return await this.axiosInstance.get('/auth/logout');
     } catch (error: unknown) {
-      console.error('Logout failed:', axios.isAxiosError(error) ? error.response?.data || error.message : error);
-      return undefined;
+     
+      return error;
     }
   }
 
   // Teacher-------------------------------------
-  async TeacherLogout(): Promise<AxiosResponse | undefined> {
+  async TeacherLogout(): Promise<any> {
     try {
-      return await axios.get('/api/auth/teacher/logout');
+      return await this.axiosInstance.get('/auth/teacher/logout');
     } catch (error: unknown) {
-      console.error('Logout failed:', axios.isAxiosError(error) ? error.response?.data || error.message : error);
-      return undefined;
+     
+      return error;
     }
   }
 
 
   // Admin---------------------------------------------
-  async AdminLogout(): Promise<AxiosResponse | undefined> {
+  async AdminLogout(): Promise<any> {
     try {
-      return await axios.get('/api/auth/admin/logout');
+      return await this.axiosInstance.get('/auth/admin/logout');
     } catch (error: unknown) {
-      console.error('Logout failed:', axios.isAxiosError(error) ? error.response?.data || error.message : error);
-      return undefined;
+     
+      return error;
     }
   }
 
 
   
-  async  AdminDashboard(): Promise<DashboardData | undefined> {
+  async  AdminDashboard(): Promise<any> {
     try {
-      const response: AxiosResponse<DashboardData> = await axios.get('/api/admin/dashboard');
+      const response: AxiosResponse<DashboardData> = await this.axiosInstance.get('/admin/dashboard');
       return response.data;
     } catch (error: unknown) {
-      console.error('Failed to fetch dashboard data:', axios.isAxiosError(error) ? error.response?.data || error.message : error);
-      return undefined;
+     
+      return error;
     }
   }
 
@@ -58,8 +57,8 @@ class ApiController {
   async  CreateClassroom(data:ClassroomData): Promise<any> {
     try {
       
-      const response: AxiosResponse<any> = await axios.post('/api/teacher/classroom',{data});
-      console.log(response)
+      const response: AxiosResponse<any> = await this.axiosInstance.post('/teacher/classroom',{data});
+      
       return response;
      
     } catch (error: unknown) {
@@ -69,8 +68,8 @@ class ApiController {
   }
   async  FetchTeacherClassrooms(id:string): Promise<any> {
     try {
-        console.log("Is working yar----")
-      const response: AxiosResponse<any> = await axiosInstance.get(`/teacher/classrooms/${id}`);
+    
+      const response: AxiosResponse<any> = await this.axiosInstance.get(`/teacher/classrooms/${id}`);
       return response;
      
     } catch (error: unknown) {
@@ -81,7 +80,7 @@ class ApiController {
   async  FetchStudentClassrooms(id:string): Promise<any> {
     try {
       
-      const response: AxiosResponse<any> = await axios.get(`/api/classrooms/${id}`);
+      const response: AxiosResponse<any> = await this.axiosInstance.get(`/classrooms/${id}`);
       return response;
      
     } catch (error: unknown) {
@@ -92,7 +91,7 @@ class ApiController {
   async FetchStudentsDataForInvitation (username: string, classroomid: string,page:number,limit:number ): Promise<any> {
     try {
         
-      const response = await axios.post('/api/teacher/students', {username:username,
+      const response = await this.axiosInstance.post('/teacher/students', {username:username,
         classroomid:classroomid,
         page:page,
         limit:limit});
@@ -107,7 +106,7 @@ class ApiController {
   async addStudents (classroomid: string, studentid: string ): Promise<any> {
     try {
         
-      const response = await axios.get(`/api/teacher/addStudent?classroomid=${classroomid}&studentid=${studentid}`);
+      const response = await this.axiosInstance.get(`/teacher/addStudent?classroomid=${classroomid}&studentid=${studentid}`);
       return response;
     } catch (error) {
       return error;
@@ -115,7 +114,7 @@ class ApiController {
   };
   async JoinClassroom (classroomid: string, teacherid: string ): Promise<any> {
     try {
-      const response = await axios.post('/api/teacher/joinclassroom', {classroomid, teacherid});
+      const response = await this.axiosInstance.post('/teacher/joinclassroom', {classroomid, teacherid});
       return response;
     } catch (error) {
       return error;
@@ -125,7 +124,7 @@ class ApiController {
   async AddClassroomsToStudentBucket (classroomid: string, studentid: string ): Promise<any> {
     try {
 
-      const response = await axios.post('/api/addClassroom', {classroomid, studentid});
+      const response = await this.axiosInstance.post('/addClassroom', {classroomid, studentid});
        console.log(response)
       return response;
  
@@ -135,7 +134,7 @@ class ApiController {
   };
   async JoinClassroomStudent (classroomid: string, studentid: string ): Promise<any> {
     try {
-      const response = await axios.post('/api/joinClassroom', {classroomid, studentid});
+      const response = await this.axiosInstance.post('/joinClassroom', {classroomid, studentid});
 
       return response;
  

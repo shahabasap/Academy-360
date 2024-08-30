@@ -20,6 +20,8 @@ import TeacherClassrooms from "../Pages/Teacher/Classroom/Classrooms";
 import LandingPage from "../Pages/LandingPage";
 import TeacherSummaryPage from "../Pages/Teacher/Dashboard/summary";
 import StudentSummaryPage from "../Pages/Student/Dashboard/summary";
+import NotFound from "../components/ErrorPages/404";
+
 
 
 
@@ -27,11 +29,12 @@ import StudentSummaryPage from "../Pages/Student/Dashboard/summary";
 function StudentRoute() {
   return (
     <Routes>
-      <Route path="/" element={<RoleProvider role="Student" />}>
+      <Route path="/" >
       <Route element={<Navbar/>}>
       <Route path="/" element={<LandingPage />} />
+      <Route path="*" element={<NotFound />} />
       </Route>
-     
+      <Route path="/" element={<RoleProvider role="Student" />}>
       {/* Student Routes */}
         <Route element={<StudentIsAuth />}>
           <Route path="login" element={<StudentLoginPage />} />
@@ -47,6 +50,7 @@ function StudentRoute() {
           <Route path="profile" element={<TeacherProfileOverview />} />
           <Route path="profile/management" element={<TeacherProfile/>} />
           <Route path="profile/classroom" element={<ProfileTeacherClassrooms />} />
+          </Route>
           </Route>
         </Route>
       </Route>
