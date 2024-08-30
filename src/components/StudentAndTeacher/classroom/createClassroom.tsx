@@ -1,8 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-
 
 interface ModalProps {
   isOpen: boolean;
@@ -35,10 +34,22 @@ const CreateClassroom: React.FC<ModalProps> = ({ isOpen, onClose, onSubmit }) =>
     onClose();
   };
 
+  // Manage body scroll when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.classList.add('no-scroll');
+    } else {
+      document.body.classList.remove('no-scroll');
+    }
+
+    // Clean up on component unmount
+    return () => document.body.classList.remove('no-scroll');
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   return ReactDOM.createPortal(
-    <div className=" fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
       <div className="bg-white rounded-lg p-8 w-full max-w-md mx-4">
         <h2 className="text-2xl font-bold mb-4">Create New Classroom</h2>
         <Formik

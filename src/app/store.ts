@@ -9,7 +9,7 @@ import teacherReducer, { TeacherState } from '../features/teacher/teacherSlice';
 const persistConfig = {
   key: 'root',
   storage,
-  whitelist: ['userInfo', 'admin', 'teacher'], // ensure these names match your state slices
+  // whitelist: ['userInfo', 'admin', 'teacher'], // ensure these names match your state slices
 };
 
 const rootReducer = combineReducers({

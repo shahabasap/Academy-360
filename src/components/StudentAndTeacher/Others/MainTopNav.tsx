@@ -4,9 +4,9 @@ import useRole from '../../../hooks/RoleState';
 import ApiController from '../../../Api/apiCalls';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { userLogout } from '../../../features/user/userSlice';
-import { teacherLogout } from '../../../features/teacher/teacherSlice';
-import { FaUser, FaSignOutAlt, FaBell, FaCalendarPlus } from 'react-icons/fa'; // Imported icons
+import { userClassLogout, userLogout } from '../../../features/user/userSlice';
+import { TeacherClassLogout, teacherLogout } from '../../../features/teacher/teacherSlice';
+import { FaUser, FaSignOutAlt, FaBell, FaCalendarPlus, FaDoorOpen } from 'react-icons/fa'; // Added FaDoorOpen icon
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -58,6 +58,35 @@ const Navbar = () => {
 
   const handleLogoutError = (error: any) => {
     console.error("Logout failed:", error);
+  };
+
+  const handleLeaveClassroom = async () => {
+    try {
+      let leaveResponse;
+
+      if (user === "Student") {
+        // leaveResponse = await ApiController.LeaveClassroomAsStudent();
+        dispatch(userClassLogout())
+        navigate('/classroom')
+
+      } else if (user === "Teacher") {
+        // leaveResponse = await ApiController.LeaveClassroomAsTeacher();
+        dispatch(TeacherClassLogout())
+        navigate('/teacher/classroom')
+      }
+
+      // if (leaveResponse?.status === 200) {
+      //   toast.success('Successfully left the classroom!');
+      //   navigate('/'); // Navigate to a different page after leaving the classroom
+      // } else {
+      //   toast.error('Failed to leave the classroom.');
+      // }
+
+    } catch (error) {
+      toast.error('An error occurred while leaving the classroom.');
+    }
+
+    setIsDropdownOpen(false);
   };
 
   useEffect(() => {
@@ -137,6 +166,13 @@ const Navbar = () => {
                 >
                   <FaCalendarPlus className="text-green-600 opacity-80 font-medium mr-3" />
                   Video Schedules
+                </button>
+                <button
+                  className='flex items-center w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-blue-600 transition-colors duration-300 ease-in-out'
+                  onClick={handleLeaveClassroom}
+                >
+                  <FaDoorOpen className="text-blue-600 opacity-80 font-medium mr-3" />
+                  Leave Classroom
                 </button>
                 <button
                   className='flex items-center w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-red-600 transition-colors duration-300 ease-in-out'

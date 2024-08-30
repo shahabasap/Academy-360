@@ -1,6 +1,13 @@
 import axios, { AxiosResponse } from 'axios';
 import DashboardData from '../types/dashboard'
 import { ClassroomData } from '../types/commonType';
+import { useApi } from './axiosInstance';
+
+
+const axiosInstance=useApi()
+
+console.log("apis",axiosInstance)
+
 class ApiController {
 
   // Student---------------------------------
@@ -52,6 +59,18 @@ class ApiController {
     try {
       
       const response: AxiosResponse<any> = await axios.post('/api/teacher/classroom',{data});
+      console.log(response)
+      return response;
+     
+    } catch (error: unknown) {
+    
+      return error;
+    }
+  }
+  async  FetchTeacherClassrooms(id:string): Promise<any> {
+    try {
+        console.log("Is working yar----")
+      const response: AxiosResponse<any> = await axiosInstance.get(`/teacher/classrooms/${id}`);
       return response;
      
     } catch (error: unknown) {
@@ -59,10 +78,10 @@ class ApiController {
       return error;
     }
   }
-  async  FetchTeacherClassrooms(id:string): Promise<any> {
+  async  FetchStudentClassrooms(id:string): Promise<any> {
     try {
       
-      const response: AxiosResponse<any> = await axios.get(`/api/teacher/classrooms/${id}`);
+      const response: AxiosResponse<any> = await axios.get(`/api/classrooms/${id}`);
       return response;
      
     } catch (error: unknown) {
@@ -98,6 +117,28 @@ class ApiController {
     try {
       const response = await axios.post('/api/teacher/joinclassroom', {classroomid, teacherid});
       return response;
+    } catch (error) {
+      return error;
+    }
+  };
+  
+  async AddClassroomsToStudentBucket (classroomid: string, studentid: string ): Promise<any> {
+    try {
+
+      const response = await axios.post('/api/addClassroom', {classroomid, studentid});
+       console.log(response)
+      return response;
+ 
+    } catch (error) {
+      return error;
+    }
+  };
+  async JoinClassroomStudent (classroomid: string, studentid: string ): Promise<any> {
+    try {
+      const response = await axios.post('/api/joinClassroom', {classroomid, studentid});
+
+      return response;
+ 
     } catch (error) {
       return error;
     }

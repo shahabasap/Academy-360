@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import MainSideNav from '../Others/MainSideNav'; // Adjust the import path as necessary
 import AddStudentModal from './AddStudentModal'; // Adjust the import path as necessary
-import { toast } from 'react-toastify'; // Import toast
+import { toast, ToastContainer } from 'react-toastify';
 import { useSelector } from 'react-redux';
 import { selectTeacherClass } from '../../../features/teacher/teacherSlice';
 import ApiController from '../../../Api/apiCalls';
+import useRole from '../../../hooks/RoleState';
 
 
 // Define your quotes here or import from an external file
@@ -17,6 +18,7 @@ const quotes = [
 
 
 const Summary: React.FC = () => {
+  const role=useRole()
   const [showAddStudentModal, setShowAddStudentModal] = useState(false);
   const [quote, setQuote] = useState('');
   const classroom = useSelector(selectTeacherClass);
@@ -32,7 +34,7 @@ const Summary: React.FC = () => {
     try {
       const response = await ApiController.addStudents(classroomId, studentId);
       if (response.status === 200) {
-        toast.success(response.data.message, {
+        toast.success("Student is added to the classroom,inviation mail is sented", {
           position: "top-center",
           autoClose: 2000,
         });
@@ -66,13 +68,13 @@ const Summary: React.FC = () => {
           </div>
           <div className="bg-white p-6 rounded-md shadow-md">
             <h3 className="text-xl font-semibold text-gray-800 mb-4">Students</h3>
-            <button
+          {role=="Teacher" ? (<button
               onClick={() => setShowAddStudentModal(true)}
               className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 mt-4"
               aria-label="Add student"
             >
               Add Student
-            </button>
+            </button>):null}  
           </div>
         </div>
       </div>
@@ -86,6 +88,8 @@ const Summary: React.FC = () => {
         page={1}
         limit={4}
       />
+         <ToastContainer />
+         
     </div>
   );
 };

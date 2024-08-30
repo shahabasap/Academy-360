@@ -2,15 +2,19 @@ import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
+import ApiController from '../../../Api/apiCalls';
+import { useSelector } from 'react-redux';
+import { userData } from '../../../features/user/userSlice';
+import { toast } from 'react-toastify';
 
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onJoin: (classroomId: string) => void;
+
+  
 }
 
-const JoinClassroomModal: React.FC<ModalProps> = ({ isOpen, onClose, onJoin }) => {
-  // Define validation schema using Yup
+const AddClassroomModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
   const validationSchema = Yup.object({
     classroomId: Yup.string()
       .trim()
@@ -18,18 +22,30 @@ const JoinClassroomModal: React.FC<ModalProps> = ({ isOpen, onClose, onJoin }) =
       .min(3, 'Classroom ID must be at least 3 characters'),
   });
 
-  // Initial form values
-  const initialValues = {
-    classroomId: '',
+  const student=useSelector(userData)
+
+  const initialValues = { classroomId: '' };
+
+  const handleSubmit =async (values: { classroomId: string }) => {
+    try {
+      const {classroomId}=values
+      const studentId=student._id
+      const classroom= await ApiController.AddClassroomsToStudentBucket(classroomId,studentId)
+      
+      if(classroom.status==200)
+      {
+        toast.success("You were added to the classroom succcessfully")
+      }
+
+      
+    } catch (error:any) {
+      console.log(error)
+      toast.error(`${error.response.data.error}`)
+
+    }
+    
   };
 
-  // Handle form submission
-  const handleSubmit = (values: { classroomId: string }) => {
-    onJoin(values.classroomId);
-    onClose();
-  };
-
-  // Add/remove no-scroll class to body when modal opens/closes
   useEffect(() => {
     if (isOpen) {
       document.body.classList.add('no-scroll');
@@ -37,13 +53,13 @@ const JoinClassroomModal: React.FC<ModalProps> = ({ isOpen, onClose, onJoin }) =
       document.body.classList.remove('no-scroll');
     }
 
-    // Clean up on component unmount
-    return () => {
-      document.body.classList.remove('no-scroll');
-    };
+    return () => document.body.classList.remove('no-scroll');
   }, [isOpen]);
 
   if (!isOpen) return null;
+
+  const modalRoot = document.getElementById('modal-root');
+  if (!modalRoot) return null;
 
   return ReactDOM.createPortal(
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
@@ -74,16 +90,16 @@ const JoinClassroomModal: React.FC<ModalProps> = ({ isOpen, onClose, onJoin }) =
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
+                  className="px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-600"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-4 py-2 text-white bg-indigo-600 rounded-md hover:bg-indigo-700"
+                  className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-600"
                 >
-                  {isSubmitting ? 'Joining...' : 'Join'}
+                  Join
                 </button>
               </div>
             </Form>
@@ -91,8 +107,8 @@ const JoinClassroomModal: React.FC<ModalProps> = ({ isOpen, onClose, onJoin }) =
         </Formik>
       </div>
     </div>,
-    document.body
+    document.getElementById('modal-root')!
   );
 };
 
-export default JoinClassroomModal;
+export default AddClassroomModal;
