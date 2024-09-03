@@ -3,24 +3,18 @@ import axios, { AxiosInstance } from 'axios';
 // Create the axios instance outside of any hook or component
 const axiosInstance: AxiosInstance = axios.create({
   baseURL: '/api',
-  headers: {
-    'Content-Type': 'application/json',
-  },
   withCredentials: true,
 });
 
 // Setup response interceptor
 axiosInstance.interceptors.response.use(
   (response) => {
-   
+    // Directly return the response if it's successful
     return response;
   },
   (error) => {
-   
-
     if (error.response) {
-     
-
+      // Handle specific status codes
       switch (error.response.status) {
         case 401:
           // Handle unauthorized access (e.g., redirect to login page)
@@ -31,14 +25,14 @@ axiosInstance.interceptors.response.use(
           window.location.href = '/blocked';
           break;
         default:
-          // Redirect to a general error page
-          window.location.href = '/error';
+          // For any other status codes, simply return the error response
+          return Promise.reject(error);
       }
     } else {
-      // Handle cases where there is no response
-      window.location.href = '/error';
+      // Handle cases where there is no response (e.g., network errors)
+      console.error('No response received from the server:', error.message);
+      return Promise.reject(error);
     }
-    return Promise.reject(error);
   }
 );
 

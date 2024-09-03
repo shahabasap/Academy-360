@@ -4,34 +4,34 @@ import AdminMainSidebar from '../../components/Admin/SideBar';
 import AdminMainTopNav from '../../components/Admin/TopNav';
 import ConfirmationModal2 from '../../components/Admin/ConfirmationModal2'; // Adjust the path as needed
 
-interface Teacher {
+interface Classroom {
   _id: string;
-  username: string;
-  name: string;
-  Is_block: boolean;
-  JoinedDate: string;
+  subject: string;
+  classroomid: string;
+  Is_blocked: boolean;
+  createdAt: string;
 }
 
-const TeacherManagement = () => {
-  const [teachers, setTeachers] = useState<Teacher[]>([]);
+const ClassroomManagement = () => {
+  const [classrooms, setClassrooms] = useState<Classroom[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [actionInProgress, setActionInProgress] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentTeacherId, setCurrentTeacherId] = useState<string | null>(null);
+  const [currentClassroomId, setCurrentClassroomId] = useState<string | null>(null);
   const [currentAction, setCurrentAction] = useState<'block' | 'unblock' | null>(null);
 
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
-  const [itemsPerPage] = useState<number>(10); // Number of teachers per page
+  const [itemsPerPage] = useState<number>(10); // Number of classrooms per page
 
   useEffect(() => {
-    fetchTeachers(currentPage);
+    fetchClassrooms(currentPage);
   }, [currentPage]);
 
-  const fetchTeachers = async (page: number) => {
+  const fetchClassrooms = async (page: number) => {
     try {
-      const { data, totalPages } = await ApiController.fetchTeachers(page, itemsPerPage);
-      setTeachers(data);
+      const { data, totalPages } = await ApiController.fetchClassrooms(page, itemsPerPage);
+      setClassrooms(data);
       setTotalPages(totalPages);
     } catch (error: any) {
       console.error(error);
@@ -41,22 +41,22 @@ const TeacherManagement = () => {
 
   const handleBlockUnblock = (id: string, isBlocked: boolean) => {
     const action = isBlocked ? 'unblock' : 'block';
-    setCurrentTeacherId(id);
+    setCurrentClassroomId(id);
     setCurrentAction(action);
     setIsModalOpen(true); // Open the modal
   };
 
   const confirmBlockUnblock = async () => {
-    if (!currentTeacherId || !currentAction) return;
+    if (!currentClassroomId || !currentAction) return;
 
-    setActionInProgress(currentTeacherId);
+    setActionInProgress(currentClassroomId);
     try {
       if (currentAction === 'block') {
-        await ApiController.blockTeacher(currentTeacherId);
+        await ApiController.blockClassroom(currentClassroomId);
       } else {
-        await ApiController.unblockTeacher(currentTeacherId);
+        await ApiController.unblockClassroom(currentClassroomId);
       }
-      fetchTeachers(currentPage);
+      fetchClassrooms(currentPage);
     } catch (error: any) {
       console.error(error);
       setError(error.message);
@@ -76,6 +76,8 @@ const TeacherManagement = () => {
     return <div className="text-red-500 p-4">{error}</div>;
   }
 
+  console.log("Calssrooms",classrooms)
+
   return (
     <div className='flex flex-row bg-[#191C24] min-h-screen'>
       <AdminMainSidebar />
@@ -86,35 +88,35 @@ const TeacherManagement = () => {
             <table className="w-full text-sm text-left text-gray-300">
               <thead className="text-xs uppercase bg-gray-700 text-gray-300">
                 <tr>
-                  <th scope="col" className="px-6 py-3">Name</th>
-                  <th scope="col" className="px-6 py-3">Email</th>
-                  <th scope="col" className="px-6 py-3">Joined Date</th>
+                  <th scope="col" className="px-6 py-3">Subject</th>
+                  <th scope="col" className="px-6 py-3">Classroom ID</th>
+                  <th scope="col" className="px-6 py-3">Created Date</th>
                   <th scope="col" className="px-6 py-3">Status</th>
                   <th scope="col" className="px-6 py-3">Action</th>
                 </tr>
               </thead>
               <tbody>
-                {teachers.map((teacher) => (
-                  <tr key={teacher._id} className="bg-gray-800 border-b border-gray-700">
-                    <td className="px-6 py-4 font-medium whitespace-nowrap text-white">{teacher.name}</td>
-                    <td className="px-6 py-4">{teacher.username}</td>
+                {classrooms.map((classroom) => (
+                  <tr key={classroom._id} className="bg-gray-800 border-b border-gray-700">
+                    <td className="px-6 py-4 font-medium whitespace-nowrap text-white">{classroom.subject}</td>
+                    <td className="px-6 py-4">{classroom.classroomid}</td>
                     <td className="px-6 py-4">
-                      {new Date(teacher.JoinedDate).toLocaleDateString()}
+                      {new Date(classroom.createdAt).toLocaleDateString()}
                     </td>
-                    <td className="px-6 py-4">{teacher.Is_block ? 'Blocked' : 'Active'}</td>
+                    <td className="px-6 py-4">{classroom.Is_blocked ? 'Blocked' : 'Active'}</td>
                     <td className="px-6 py-4">
                       <button
-                        onClick={() => handleBlockUnblock(teacher._id, teacher.Is_block)}
-                        disabled={actionInProgress === teacher._id}
+                        onClick={() => handleBlockUnblock(classroom._id, classroom.Is_blocked)}
+                        disabled={actionInProgress === classroom._id}
                         className={`font-medium px-4 py-2 rounded ${
-                          teacher.Is_block
+                          classroom.Is_blocked
                             ? 'bg-green-500 hover:bg-green-600 text-white'
                             : 'bg-red-500 hover:bg-red-600 text-white'
-                        } ${actionInProgress === teacher._id ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        } ${actionInProgress === classroom._id ? 'opacity-50 cursor-not-allowed' : ''}`}
                       >
-                        {actionInProgress === teacher._id
+                        {actionInProgress === classroom._id
                           ? 'Processing...'
-                          : teacher.Is_block
+                          : classroom.Is_blocked
                           ? 'Unblock'
                           : 'Block'}
                       </button>
@@ -158,4 +160,4 @@ const TeacherManagement = () => {
   );
 };
 
-export default TeacherManagement;
+export default ClassroomManagement;

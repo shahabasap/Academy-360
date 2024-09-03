@@ -5,9 +5,12 @@ import TeacherRoute from "./Routes/TeacherRoute";
 import StudentRoute from "./Routes/Students";
 
 
+
+
 function App() {
   return (
     <Routes>
+      
       {/* Admin routes */}
       <Route path="/admin/*" element={<AdminRoute />} />
 
@@ -18,6 +21,7 @@ function App() {
       <Route path="/*" element={<StudentRoute />} />
 
       {/* Fallback for undefined routes */}
+    
       
     </Routes>
   );

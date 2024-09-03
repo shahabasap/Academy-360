@@ -36,3 +36,52 @@ export interface TableProps {
   currentPage: number;
   itemsPerPage: number;
 }
+
+export interface Teacher {
+  _id: string;
+  username: string;
+  name: string;
+  Is_block: boolean;
+  JoinedDate: string;
+}
+
+export type Experience = {
+  institute: string;
+  yearFrom: string;
+  yearTo: string;
+};
+
+export type Graduation = {
+  college: string;
+  course: string;
+  yearFrom: string;
+  yearTo: string;
+};
+
+export type TeacherProfileFormData = {
+  name: string;
+  gender: string;
+  phone: string;
+  experiences: Experience[];
+  graduation: Graduation;
+  postGraduation: Graduation;
+  ugCertificate: File | null;
+  pgCertificate: File | null;
+  photo: File | null;
+};
+
+export type StudentProfileFormData = {
+  name: string;
+  gender: string;
+  phone: string;
+  password: string;
+  graduation: Graduation[];
+  photo: File | null;
+};
+
+export interface TecherProfileManagementProps {
+  onSubmit: (values: TeacherProfileFormData) => void;
+}
+export interface StudentProfileManagementProps {
+  onSubmit: (values: StudentProfileFormData) => void;
+}

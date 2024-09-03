@@ -6,6 +6,7 @@ import AdminDash from "../Pages/Admin/dashboard";
 import AdminLoginPage from "../Pages/Admin/login";
 import StudentManagement from "../Pages/Admin/student";
 import TeacherManagement from "../Pages/Admin/teachers";
+import ClassroomManagement from "../Pages/Admin/classroom";
 
 const AdminRoute = () => {
   return (
@@ -18,6 +19,7 @@ const AdminRoute = () => {
         <Route path="dashboard" element={<AdminDash />} />
         <Route path="students" element={<StudentManagement />} />
         <Route path="teachers" element={<TeacherManagement />} />
+        <Route path="classrooms" element={<ClassroomManagement />} />
       </Route>
     </Routes>
   );

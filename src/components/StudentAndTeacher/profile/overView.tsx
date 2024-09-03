@@ -5,13 +5,14 @@ import useRole from '../../../hooks/RoleState';
 
 const ProfileOverview: React.FC = () => {
    const role=useRole()
+   console.log("role",role)
 
   return (
     <div className="flex flex-row min-h-screen bg-gray-50">
-        <div className='w-64 '><ProfileSidebar /></div>
+        <div className='w-20 md:w-64 '><ProfileSidebar /></div>
       
       <div className="flex flex-col w-full p-6">
-        <h1 className="text-3xl font-bold text-gray-900 mb-6">Profile Overview</h1>
+        <h1 className=" text-3xl font-bold text-gray-900 mb-6">Profile Overview</h1>
         
         <div className="bg-white shadow-lg rounded-lg p-6 mb-6">
           <div className="flex items-center">

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import axios, { AxiosResponse } from 'axios';
 import AdminMainSidebar from '../../components/Admin/SideBar';
 import AdminMainTopNav from '../../components/Admin/TopNav';
 import ConfirmationModal2 from '../../components/Admin/ConfirmationModal2';
+import ApiController from '../../Api/apiCalls';
 
 interface Student {
   _id: string;
@@ -25,17 +25,20 @@ const StudentManagement = () => {
   const pageSize = 10;
 
   useEffect(() => {
-    fetchTeachers(currentPage);
+    fetchStudents(currentPage);
   }, [currentPage]);
 
-  const fetchTeachers = async (page: number) => {
+  const fetchStudents = async (page: number) => {
     try {
-      const response: AxiosResponse = await axios.get(`/api/admin/students?page=${page}&pageSize=${pageSize}`);
+      const response = await ApiController.fetchStudents(page, pageSize);
+      if (response instanceof Error) {
+        throw response;
+      }
       setStudents(response.data.data);
       setTotalPages(response.data.totalPages);
     } catch (error) {
-      console.error('Error fetching teachers:', error);
-      setError('Failed to load teachers. Please try again later.');
+      console.error('Error fetching students:', error);
+      setError('Failed to load students. Please try again later.');
     }
   };
 
@@ -51,15 +54,18 @@ const StudentManagement = () => {
 
     setActionInProgress(currentStudentId);
     try {
-      const endpoint =
+      const response =
         currentAction === 'unblock'
-          ? `/api/admin/student-unblock/${currentStudentId}`
-          : `/api/admin/student-block/${currentStudentId}`;
-      await axios.put(endpoint);
-      fetchTeachers(currentPage); // Refresh the current page data
+          ? await ApiController.unblockStudent(currentStudentId!)
+          : await ApiController.blockStudent(currentStudentId!);
+      
+      if (response instanceof Error) {
+        throw response;
+      }
+      fetchStudents(currentPage); // Refresh the current page data
     } catch (error) {
-      console.error(`Error updating teacher status:`, error);
-      setError(`Failed to ${currentAction} teacher. Please try again.`);
+      console.error(`Error updating student status:`, error);
+      setError(`Failed to ${currentAction} student. Please try again.`);
     } finally {
       setActionInProgress(null);
       setIsModalOpen(false);

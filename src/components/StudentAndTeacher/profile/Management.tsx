@@ -1,231 +1,341 @@
 import React, { useState } from 'react';
-import ProfileSidebar from '../profile/profileSidebar'
+import ProfileSidebar from './profileSidebar';
 import useRole from '../../../hooks/RoleState';
+import ApiController from '../../../Api/apiCalls';
+import convertToFormData from '../../../utils/formdataConverter';
+import { TeacherProfileFormData, Experience, Graduation } from '../../../types/commonType';
+import { useSelector } from 'react-redux';
+import { TeacherData } from '../../../features/teacher/teacherSlice';
+import { toast } from 'react-toastify';
 
+// Initial values for form state
+const initialFormState: TeacherProfileFormData = {
+  name: '',
+  gender: '',
+  phone: '',
+  experiences: [{ institute: '', yearFrom: '', yearTo: '' }],
+  graduation: { college: '', course: '', yearFrom: '', yearTo: '' },
+  postGraduation: { college: '', course: '', yearFrom: '', yearTo: '' },
+  ugCertificate: null,
+  pgCertificate: null,
+  photo: null,
+};
 
-const ProfileManagement = () => {
-  const role=useRole()
-  const [formData, setFormData] = useState({
-    username: '',
-    name: '',
-    gender: '',
-    phone: '',
-    password: '',
-    qualification: '',
-    experiences: [{ institute: '', yearFrom: '', yearTo: '' }],
-    photo: null,
+// Validation functions
+const validate = (values: TeacherProfileFormData) => {
+  const errors: any = {};
+
+  if (!values.name) errors.name = 'Name is required';
+  if (!values.gender) errors.gender = 'Gender is required';
+  if (!/^\d{10}$/.test(values.phone)) errors.phone = 'Phone number must be exactly 10 digits';
+  if (!values.photo) errors.photo = 'Profile photo is required';
+
+  values.experiences.forEach((exp, index) => {
+    if (!exp.institute) errors[`experiences[${index}].institute`] = 'Institute is required';
+    if (!exp.yearFrom) errors[`experiences[${index}].yearFrom`] = 'Start date is required';
+    if (!exp.yearTo) errors[`experiences[${index}].yearTo`] = 'End date is required';
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>, index?: number) => {
-    if (index !== undefined) {
-      const newExperiences = [...formData.experiences];
-      newExperiences[index] = {
-        ...newExperiences[index],
-        [e.target.name]: e.target.value,
-      };
-      setFormData({
-        ...formData,
-        experiences: newExperiences,
-      });
+  if (!values.graduation.college) errors['graduation.college'] = 'College is required';
+  if (!values.graduation.course) errors['graduation.course'] = 'Course is required';
+  if (!values.graduation.yearFrom) errors['graduation.yearFrom'] = 'Start date is required';
+  if (!values.graduation.yearTo) errors['graduation.yearTo'] = 'End date is required';
+
+  if (values.postGraduation.college || values.postGraduation.course || values.postGraduation.yearFrom || values.postGraduation.yearTo) {
+    if (!values.postGraduation.college) errors['postGraduation.college'] = 'College is required';
+    if (!values.postGraduation.course) errors['postGraduation.course'] = 'Course is required';
+    if (!values.postGraduation.yearFrom) errors['postGraduation.yearFrom'] = 'Start date is required';
+    if (!values.postGraduation.yearTo) errors['postGraduation.yearTo'] = 'End date is required';
+  }
+
+  return errors;
+};
+
+// Input Field Component
+const InputField: React.FC<{ label: string, name: string, value: string, onChange: React.ChangeEventHandler<HTMLInputElement>, type?: string, error?: string }> = ({ label, name, value, onChange, type = 'text', error }) => (
+  <div className="flex flex-col">
+    <label className="block text-gray-600 mb-1">{label}</label>
+    <input
+      type={type}
+      name={name}
+      value={value}
+      onChange={onChange}
+      className={`border p-2 rounded ${error ? 'border-red-500' : ''}`}
+    />
+    {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
+  </div>
+);
+
+// File Input Component
+const FileInput: React.FC<{ label: string, name: string, onChange: React.ChangeEventHandler<HTMLInputElement>, accept: string, error?: string }> = ({ label, name, onChange, accept, error }) => (
+  <div className="flex flex-col">
+    <label className="block text-gray-600 mb-1">{label}</label>
+    <input
+      type="file"
+      name={name}
+      accept={accept}
+      onChange={onChange}
+      className={`border p-2 rounded ${error ? 'border-red-500' : ''}`}
+    />
+    {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
+  </div>
+);
+
+// Section Component for experiences
+const ExperienceSection: React.FC<{
+  data: Experience[];
+  handleChange: (index: number, e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleAdd: () => void;
+  handleRemove: (index: number) => void;
+  errors: Record<string, string>;
+}> = ({
+  data,
+  handleChange,
+  handleAdd,
+  handleRemove,
+  errors
+}) => (
+  <div className="space-y-4">
+    {data.map((item, index) => (
+      <div key={index} className="border p-4 rounded-lg bg-gray-100">
+        <h3 className="text-lg font-semibold">{`Experience ${index + 1}`}</h3>
+        <InputField
+          label="Institute"
+          name={`experiences[${index}].institute`}
+          value={item.institute}
+          onChange={(e) => handleChange(index, e)}
+          error={errors[`experiences[${index}].institute`]}
+        />
+        <InputField
+          label="Start Date"
+          name={`experiences[${index}].yearFrom`}
+          value={item.yearFrom}
+          onChange={(e) => handleChange(index, e)}
+          type="date"
+          error={errors[`experiences[${index}].yearFrom`]}
+        />
+        <InputField
+          label="End Date"
+          name={`experiences[${index}].yearTo`}
+          value={item.yearTo}
+          onChange={(e) => handleChange(index, e)}
+          type="date"
+          error={errors[`experiences[${index}].yearTo`]}
+        />
+        <button
+          type="button"
+          onClick={() => handleRemove(index)}
+          className="text-red-500"
+        >
+          Remove
+        </button>
+      </div>
+    ))}
+    <button
+      type="button"
+      onClick={handleAdd}
+      className="bg-blue-500 text-white py-2 px-4 rounded"
+    >
+      Add Experience
+    </button>
+  </div>
+);
+
+// Education Section Component
+const EducationSection: React.FC<{
+  sectionName: 'graduation' | 'postGraduation';
+  data: Graduation;
+  handleChange: (section: 'graduation' | 'postGraduation', e: React.ChangeEvent<HTMLInputElement>) => void;
+  errors: Record<string, string>;
+}> = ({ sectionName, data, handleChange, errors }) => (
+  <div className="border p-4 rounded-lg bg-gray-100">
+    <h3 className="text-lg font-semibold">{sectionName.charAt(0).toUpperCase() + sectionName.slice(1)}</h3>
+    <InputField
+      label="College"
+      name={`${sectionName}.college`}
+      value={data.college}
+      onChange={(e) => handleChange(sectionName, e)}
+      error={errors[`${sectionName}.college`]}
+    />
+    <InputField
+      label="Course"
+      name={`${sectionName}.course`}
+      value={data.course}
+      onChange={(e) => handleChange(sectionName, e)}
+      error={errors[`${sectionName}.course`]}
+    />
+    <InputField
+      label="Start Date"
+      name={`${sectionName}.yearFrom`}
+      value={data.yearFrom}
+      onChange={(e) => handleChange(sectionName, e)}
+      type="date"
+      error={errors[`${sectionName}.yearFrom`]}
+    />
+    <InputField
+      label="End Date"
+      name={`${sectionName}.yearTo`}
+      value={data.yearTo}
+      onChange={(e) => handleChange(sectionName, e)}
+      type="date"
+      error={errors[`${sectionName}.yearTo`]}
+    />
+  </div>
+);
+
+// Main component
+const ProfileManagement: React.FC = () => {
+  const role = useRole();
+  const user = useSelector(TeacherData);
+  const userId = user._id;
+  const [formValues, setFormValues] = useState<TeacherProfileFormData>(initialFormState);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value, type, files } = e.target;
+
+    if (type === 'file' && files) {
+      const file = files[0];
+      setFormValues(prevState => ({ ...prevState, [name]: file || null }));
     } else {
-      setFormData({
-        ...formData,
-        [e.target.name]: e.target.value,
-      });
+      setFormValues(prevState => ({ ...prevState, [name]: value }));
     }
+  };
+
+  const handleExperienceChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    const fieldName = name.split('.')[1];
+    setFormValues(prevState => {
+      const updatedExperiences = [...prevState.experiences];
+      updatedExperiences[index] = {
+        ...updatedExperiences[index],
+        [fieldName]: value,
+      };
+      return { ...prevState, experiences: updatedExperiences };
+    });
   };
 
   const handleAddExperience = () => {
-    setFormData({
-      ...formData,
-      experiences: [...formData.experiences, { institute: '', yearFrom: '', yearTo: '' }],
-    });
+    setFormValues(prevState => ({
+      ...prevState,
+      experiences: [
+        ...prevState.experiences,
+        { institute: '', yearFrom: '', yearTo: '' }
+      ],
+    }));
   };
 
   const handleRemoveExperience = (index: number) => {
-    const newExperiences = formData.experiences.filter((_, i) => i !== index);
-    setFormData({
-      ...formData,
-      experiences: newExperiences,
-    });
+    setFormValues(prevState => ({
+      ...prevState,
+      experiences: prevState.experiences.filter((_, i) => i !== index),
+    }));
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setFormData({
-        ...formData,
-        // photo: e.target.files[0],
-      });
+  const handleEducationChange = (section: 'graduation' | 'postGraduation', e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormValues(prevState => ({
+      ...prevState,
+      [section]: {
+        ...prevState[section],
+        [name.split('.')[1]]: value,
+      },
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const validationErrors = validate(formValues);
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
+    try {
+      const formData = convertToFormData(formValues);
+      await ApiController.updateTeacherProfile(formData, userId);
+      toast.success('Profile updated successfully');
+    } catch (error) {
+      toast.error('Error updating profile');
     }
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    // Submit form data logic
-  };
-
   return (
-    <div className="flex flex-row min-h-screen bg-gray-50">
-        <div className='w-64'>
-        <ProfileSidebar />
-        </div>
-      <div className="flex flex-col w-full">
-       
-        <div className="flex justify-center items-center w-full mt-8">
-          <div className="bg-white p-8 rounded-lg shadow-lg max-w-3xl w-full">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">Teacher Profile</h2>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="flex justify-center mb-6">
-                <div className="relative">
-                  <div className="w-32 h-32 rounded-full border mb-2 bg-gray-200 flex items-center justify-center">
-                    {formData.photo ? (
-                      <img
-                        src={URL.createObjectURL(formData.photo)}
-                        alt="Profile"
-                        className="rounded-full w-full h-full object-cover"
-                      />
-                    ) : (
-                      <span className="text-gray-400">No Image</span>
-                    )}
-                  </div>
-                  <input
-                    type="file"
-                    name="photo"
-                    accept="image/*"
-                    onChange={handleFileChange}
-                    className="absolute inset-0 opacity-0 cursor-pointer w-32 h-32 rounded-full"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="flex flex-col">
-                  <label className="block text-gray-600 mb-1">Username</label>
-                  <input
-                    type="text"
-                    name="username"
-                    value={formData.username}
-                    onChange={handleChange}
-                    className="p-3 border border-gray-300 rounded-md"
-                    required
-                  />
-                </div>
-                <div className="flex flex-col">
-                  <label className="block text-gray-600 mb-1">Name</label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    className="p-3 border border-gray-300 rounded-md"
-                    required
-                  />
-                </div>
-                <div className="flex flex-col">
-                  <label className="block text-gray-600 mb-1">Gender</label>
-                  <select
-                    name="gender"
-                    value={formData.gender}
-                    onChange={handleChange}
-                    className="p-3 border border-gray-300 rounded-md"
-                  >
-                    <option value="">Select</option>
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                  </select>
-                </div>
-                <div className="flex flex-col">
-                  <label className="block text-gray-600 mb-1">Phone</label>
-                  <input
-                    type="text"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    className="p-3 border border-gray-300 rounded-md"
-                  />
-                </div>
-                <div className="flex flex-col">
-                  <label className="block text-gray-600 mb-1">Qualification</label>
-                  <input
-                    type="text"
-                    name="qualification"
-                    value={formData.qualification}
-                    onChange={handleChange}
-                    className="p-3 border border-gray-300 rounded-md"
-                  />
-                </div>
-              </div>
-
-              <div className="mt-4">
-                <h3 className="text-lg font-medium text-gray-800 mb-2">Experiences</h3>
-                <div className="space-y-4">
-                  {formData.experiences.map((experience, index) => (
-                    <div key={index} className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
-                      <div className="flex flex-col">
-                        <label className="block text-gray-600 mb-1">Institute</label>
-                        <input
-                          type="text"
-                          name="institute"
-                          value={experience.institute}
-                          onChange={(e) => handleChange(e, index)}
-                          className="p-3 border border-gray-300 rounded-md"
-                        />
-                      </div>
-                      <div className="flex flex-col">
-                        <label className="block text-gray-600 mb-1">From</label>
-                        <input
-                          type="date"
-                          name="yearFrom"
-                          value={experience.yearFrom}
-                          onChange={(e) => handleChange(e, index)}
-                          className="p-3 border border-gray-300 rounded-md"
-                        />
-                      </div>
-                      <div className="flex flex-col">
-                        <label className="block text-gray-600 mb-1">To</label>
-                        <input
-                          type="date"
-                          name="yearTo"
-                          value={experience.yearTo}
-                          onChange={(e) => handleChange(e, index)}
-                          className="p-3 border border-gray-300 rounded-md"
-                        />
-                      </div>
-                      <div className="flex justify-end">
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveExperience(index)}
-                          className="text-red-600 hover:text-red-800 text-sm"
-                        >
-                          Remove
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div className="flex justify-end mt-4">
-                  <button
-                    type="button"
-                    onClick={handleAddExperience}
-                    className="bg-[#2E236C] text-white px-4 py-2 rounded-md hover:bg-[#1D1F6C] transition-colors text-sm"
-                  >
-                    Add Experience
-                  </button>
-                </div>
-              </div>
-
-              <div className="flex justify-center mt-6">
-                <button
-                  type="submit"
-                  className="bg-[#2E236C] text-white px-5 py-2 rounded-md hover:bg-[#1D1F6C] transition-colors"
-                >
-                  Update Profile
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
+    <div className="flex">
+      {/* <ProfileSidebar /> */}
+      <main className="p-8 w-full">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <h2 className="text-2xl font-semibold">Profile Management</h2>
+          <InputField
+            label="Name"
+            name="name"
+            value={formValues.name}
+            onChange={handleChange}
+            error={errors.name}
+          />
+          <InputField
+            label="Gender"
+            name="gender"
+            value={formValues.gender}
+            onChange={handleChange}
+            error={errors.gender}
+          />
+          <InputField
+            label="Phone"
+            name="phone"
+            value={formValues.phone}
+            onChange={handleChange}
+            type="tel"
+            error={errors.phone}
+          />
+          <ExperienceSection
+            data={formValues.experiences}
+            handleChange={handleExperienceChange}
+            handleAdd={handleAddExperience}
+            handleRemove={handleRemoveExperience}
+            errors={errors}
+          />
+          <EducationSection
+            sectionName="graduation"
+            data={formValues.graduation}
+            handleChange={handleEducationChange}
+            errors={errors}
+          />
+          <EducationSection
+            sectionName="postGraduation"
+            data={formValues.postGraduation}
+            handleChange={handleEducationChange}
+            errors={errors}
+          />
+          <FileInput
+            label="UG Certificate"
+            name="ugCertificate"
+            onChange={handleChange}
+            accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+            error={errors['ugCertificate']}
+          />
+          <FileInput
+            label="PG Certificate"
+            name="pgCertificate"
+            onChange={handleChange}
+            accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+            error={errors['pgCertificate']}
+          />
+          <FileInput
+            label="Profile Photo"
+            name="photo"
+            onChange={handleChange}
+            accept=".jpg,.jpeg,.png"
+            error={errors['photo']}
+          />
+          <button
+            type="submit"
+            className="bg-blue-500 text-white py-2 px-4 rounded"
+          >
+            Save Changes
+          </button>
+        </form>
+      </main>
     </div>
   );
 };

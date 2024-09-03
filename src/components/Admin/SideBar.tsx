@@ -80,6 +80,16 @@ const AdminMainSideNav: React.FC = () => {
                   Teachers
                 </li>
               </Link>
+              <Link to="/admin/classrooms">
+                <li
+                  className={`mt-2 p-2 rounded-md cursor-pointer text-sm md:text-base ${
+                    location.pathname === '/admin/classrooms' ? 'bg-[#66608C] text-white' : ''
+                  }`}
+                  onClick={handleItemClick}
+                >
+                  classrooms
+                </li>
+              </Link>
             </ul>
           </div>
         </div>
