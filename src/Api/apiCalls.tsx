@@ -35,6 +35,18 @@ class ApiController {
       return error;
     }
   }
+  async updateStudentProfile(formData:FormData,studentid:string): Promise<any> {
+    try {
+   
+      const response: AxiosResponse<any> = await this.axiosInstance.put(`/profile/${studentid}`,
+        formData,
+        { headers: { 'Content-Type': 'multipart/form-data' }, withCredentials: true });
+      return response;
+    } catch (error) {
+      throw new Error('Failed to fetch teachers. Please try again later.');
+    }
+  }
+
   
 
   // Teacher-------------------------------------
@@ -162,7 +174,7 @@ async editTeacherProfile(teacherId: string, Data: any): Promise<any> {
       throw new Error('Failed to fetch teachers. Please try again later.');
     }
   }
-
+ 
   async blockTeacher(id: string): Promise<void> {
     try {
       await this.axiosInstance.put(`/admin/teacher-block/${id}`);

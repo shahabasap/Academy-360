@@ -13,11 +13,11 @@ const ProfileSidebar: React.FC = () => {
   return (
     <nav className="bg-white flex flex-col md:fixed h-full fixed left-0 border-r border-gray-200 shadow-md">
       <ul className="flex-grow">
-      <li className="p-4 hover:bg-purple-600 group transition-colors duration-300" onClick={handleToggle}>
+      {/* <li className="p-4 hover:bg-purple-600 group transition-colors duration-300" onClick={handleToggle}>
             <div className="flex items-center">
               <FaAlignJustify className="mr-3 text-purple-600 group-hover:text-white" />
             </div>
-          </li>
+          </li> */}
         <Link to="/teacher/profile">
           <li className="p-4 hover:bg-purple-600 group transition-colors duration-300">
             <div className="flex items-center">

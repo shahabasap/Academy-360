@@ -1,4 +1,4 @@
-import ProfileManagement from '../../../components/student/profileManagement';
+import ProfileManagement from '../../../components/StudentAndTeacher/profile/Management';
 import React from 'react';
 import {StudentProfileFormData } from '../../../types/commonType';
 import ApiControllers from '../../../Api/apiCalls'

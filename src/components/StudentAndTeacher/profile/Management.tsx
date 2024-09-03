@@ -1,15 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
 import ProfileSidebar from './profileSidebar';
 import useRole from '../../../hooks/RoleState';
 import ApiController from '../../../Api/apiCalls';
 import convertToFormData from '../../../utils/formdataConverter';
-import { TeacherProfileFormData, Experience, Graduation } from '../../../types/commonType';
-import { useSelector } from 'react-redux';
+import { TeacherProfileFormData, StudentProfileFormData, Experience, Graduation } from '../../../types/commonType';
 import { TeacherData } from '../../../features/teacher/teacherSlice';
-import { toast } from 'react-toastify';
+import { userData } from '../../../features/user/userSlice';
 
 // Initial values for form state
-const initialFormState: TeacherProfileFormData = {
+const initialTeacherFormState: TeacherProfileFormData = {
   name: '',
   gender: '',
   phone: '',
@@ -21,8 +22,15 @@ const initialFormState: TeacherProfileFormData = {
   photo: null,
 };
 
+const initialStudentFormState: StudentProfileFormData = {
+  name: '',
+  gender: '',
+  phone: '',
+  photo: null,
+};
+
 // Validation functions
-const validate = (values: TeacherProfileFormData) => {
+const validateTeacher = (values: TeacherProfileFormData) => {
   const errors: any = {};
 
   if (!values.name) errors.name = 'Name is required';
@@ -48,6 +56,15 @@ const validate = (values: TeacherProfileFormData) => {
     if (!values.postGraduation.yearTo) errors['postGraduation.yearTo'] = 'End date is required';
   }
 
+  return errors;
+};
+
+const validateStudent = (values: StudentProfileFormData) => {
+  const errors: any = {};
+  if (!values.name) errors.name = 'Name is required';
+  if (!values.gender) errors.gender = 'Gender is required';
+  if (!/^\d{10}$/.test(values.phone)) errors.phone = 'Phone number must be exactly 10 digits';
+  if (!values.photo) errors.photo = 'Profile photo is required';
   return errors;
 };
 
@@ -81,7 +98,36 @@ const FileInput: React.FC<{ label: string, name: string, onChange: React.ChangeE
   </div>
 );
 
-// Section Component for experiences
+// Profile Image Preview Component
+const ProfileImagePreview: React.FC<{ photo: File | null }> = ({ photo }) => {
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (photo) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewUrl(reader.result as string);
+      };
+      reader.readAsDataURL(photo);
+    } else {
+      setPreviewUrl(null);
+    }
+  }, [photo]);
+
+  return (
+    <div className="mb-4">
+      {previewUrl ? (
+        <img src={previewUrl} alt="Profile Preview" className="w-32 h-32 rounded-full object-cover" />
+      ) : (
+        <div className="w-32 h-32 bg-gray-200 rounded-full flex items-center justify-center text-gray-500">
+          No Image
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Experience Section Component
 const ExperienceSection: React.FC<{
   data: Experience[];
   handleChange: (index: number, e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -186,9 +232,13 @@ const EducationSection: React.FC<{
 // Main component
 const ProfileManagement: React.FC = () => {
   const role = useRole();
-  const user = useSelector(TeacherData);
+  const user = useSelector(userData);
   const userId = user._id;
-  const [formValues, setFormValues] = useState<TeacherProfileFormData>(initialFormState);
+  const teacher=useSelector(TeacherData)
+  const teacherId=teacher._id
+  const [formValues, setFormValues] = useState<TeacherProfileFormData | StudentProfileFormData>(
+    role === 'Teacher' ? initialTeacherFormState : initialStudentFormState
+  );
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -206,46 +256,66 @@ const ProfileManagement: React.FC = () => {
     const { name, value } = e.target;
     const fieldName = name.split('.')[1];
     setFormValues(prevState => {
-      const updatedExperiences = [...prevState.experiences];
-      updatedExperiences[index] = {
-        ...updatedExperiences[index],
-        [fieldName]: value,
-      };
-      return { ...prevState, experiences: updatedExperiences };
+      if ('experiences' in prevState) {
+        const updatedExperiences = [...prevState.experiences];
+        updatedExperiences[index] = {
+          ...updatedExperiences[index],
+          [fieldName]: value,
+        };
+        return { ...prevState, experiences: updatedExperiences };
+      }
+      return prevState;
     });
   };
 
   const handleAddExperience = () => {
-    setFormValues(prevState => ({
-      ...prevState,
-      experiences: [
-        ...prevState.experiences,
-        { institute: '', yearFrom: '', yearTo: '' }
-      ],
-    }));
+    setFormValues(prevState => {
+      if ('experiences' in prevState) {
+        return {
+          ...prevState,
+          experiences: [
+            ...prevState.experiences,
+            { institute: '', yearFrom: '', yearTo: '' }
+          ],
+        };
+      }
+      return prevState;
+    });
   };
 
   const handleRemoveExperience = (index: number) => {
-    setFormValues(prevState => ({
-      ...prevState,
-      experiences: prevState.experiences.filter((_, i) => i !== index),
-    }));
+    setFormValues(prevState => {
+      if ('experiences' in prevState) {
+        return {
+          ...prevState,
+          experiences: prevState.experiences.filter((_, i) => i !== index),
+        };
+      }
+      return prevState;
+    });
   };
 
   const handleEducationChange = (section: 'graduation' | 'postGraduation', e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormValues(prevState => ({
-      ...prevState,
-      [section]: {
-        ...prevState[section],
-        [name.split('.')[1]]: value,
-      },
-    }));
+    setFormValues(prevState => {
+      if (section in prevState) {
+        return {
+          ...prevState,
+          [section]: {
+            ...(prevState as any)[section],
+            [name.split('.')[1]]: value,
+          },
+        };
+      }
+      return prevState;
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const validationErrors = validate(formValues);
+    const validationErrors = role === 'Teacher' 
+      ? validateTeacher(formValues as TeacherProfileFormData) 
+      : validateStudent(formValues as StudentProfileFormData);
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
@@ -253,7 +323,11 @@ const ProfileManagement: React.FC = () => {
 
     try {
       const formData = convertToFormData(formValues);
-      await ApiController.updateTeacherProfile(formData, userId);
+      if (role === 'Teacher') {
+        await ApiController.updateTeacherProfile(formData, teacherId);
+      } else {
+        await ApiController.updateStudentProfile(formData, userId);
+      }
       toast.success('Profile updated successfully');
     } catch (error) {
       toast.error('Error updating profile');
@@ -261,11 +335,12 @@ const ProfileManagement: React.FC = () => {
   };
 
   return (
-    <div className="flex">
-      {/* <ProfileSidebar /> */}
-      <main className="p-8 w-full">
+    <div className="flex flex-row min-h-screen bg-gray-50">
+      <div className='w-20 md:w-64'><ProfileSidebar /></div>
+      <div className="flex flex-col w-full pl-20 pt-2">
         <form onSubmit={handleSubmit} className="space-y-6">
           <h2 className="text-2xl font-semibold">Profile Management</h2>
+          <ProfileImagePreview photo={(formValues as any).photo} />
           <InputField
             label="Name"
             name="name"
@@ -288,39 +363,43 @@ const ProfileManagement: React.FC = () => {
             type="tel"
             error={errors.phone}
           />
-          <ExperienceSection
-            data={formValues.experiences}
-            handleChange={handleExperienceChange}
-            handleAdd={handleAddExperience}
-            handleRemove={handleRemoveExperience}
-            errors={errors}
-          />
-          <EducationSection
-            sectionName="graduation"
-            data={formValues.graduation}
-            handleChange={handleEducationChange}
-            errors={errors}
-          />
-          <EducationSection
-            sectionName="postGraduation"
-            data={formValues.postGraduation}
-            handleChange={handleEducationChange}
-            errors={errors}
-          />
-          <FileInput
-            label="UG Certificate"
-            name="ugCertificate"
-            onChange={handleChange}
-            accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-            error={errors['ugCertificate']}
-          />
-          <FileInput
-            label="PG Certificate"
-            name="pgCertificate"
-            onChange={handleChange}
-            accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-            error={errors['pgCertificate']}
-          />
+          {role === 'Teacher' && (
+            <>
+              <ExperienceSection
+                data={(formValues as TeacherProfileFormData).experiences}
+                handleChange={handleExperienceChange}
+                handleAdd={handleAddExperience}
+                handleRemove={handleRemoveExperience}
+                errors={errors}
+              />
+              <EducationSection
+                sectionName="graduation"
+                data={(formValues as TeacherProfileFormData).graduation}
+                handleChange={handleEducationChange}
+                errors={errors}
+              />
+              <EducationSection
+                sectionName="postGraduation"
+                data={(formValues as TeacherProfileFormData).postGraduation}
+                handleChange={handleEducationChange}
+                errors={errors}
+              />
+         <FileInput
+                label="UG Certificate"
+                name="ugCertificate"
+                onChange={handleChange}
+                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                error={errors['ugCertificate']}
+              />
+              <FileInput
+                label="PG Certificate"
+                name="pgCertificate"
+                onChange={handleChange}
+                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                error={errors['pgCertificate']}
+              />
+            </>
+          )}
           <FileInput
             label="Profile Photo"
             name="photo"
@@ -330,12 +409,12 @@ const ProfileManagement: React.FC = () => {
           />
           <button
             type="submit"
-            className="bg-blue-500 text-white py-2 px-4 rounded"
+            className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition-colors"
           >
             Save Changes
           </button>
         </form>
-      </main>
+      </div>
     </div>
   );
 };

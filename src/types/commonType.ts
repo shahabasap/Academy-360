@@ -74,8 +74,6 @@ export type StudentProfileFormData = {
   name: string;
   gender: string;
   phone: string;
-  password: string;
-  graduation: Graduation[];
   photo: File | null;
 };
 
