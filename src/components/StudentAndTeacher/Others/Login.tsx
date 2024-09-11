@@ -72,11 +72,13 @@ const Login: React.FC<LoginProps> = ({ onSubmit, signupUrl, forgotpassURL }) => 
       if(role=="Student")
       {
         dispatch(userLogin(response.data))
+        localStorage.setItem('role','student'); 
         navigate('/dashboard')
 
       }else if(role=="Teacher")
       {
          dispatch(teacherLogin(response.data))
+         localStorage.setItem('role','teacher'); 
          navigate('/teacher/dashboard')
       }
         

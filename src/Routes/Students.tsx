@@ -21,6 +21,7 @@ import LandingPage from "../Pages/LandingPage";
 import StudentSummaryPage from "../Pages/Student/Dashboard/summary";
 import NotFound from "../components/ErrorPages/404";
 import StudentProfileManagement from "../Pages/Student/Profile/management";
+import UnlockClassroom from '../components/student/unlockClassroom'
 
 
 
@@ -48,6 +49,7 @@ StudentRoute() {
         <Route element={<StudentProtectRoute />}>\
         <Route element={<Navbar/>}>
           <Route path="dashboard" element={<StudentSummaryPage />} />
+          <Route path="unlock-classroom" element={<UnlockClassroom />} />
           <Route path="classroom" element={<TeacherClassrooms />} />
           <Route path="profile" element={<TeacherProfileOverview />} />
           <Route path="profile/management" element={<StudentProfileManagement/>} />

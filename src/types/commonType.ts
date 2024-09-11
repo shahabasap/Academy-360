@@ -6,14 +6,20 @@ export interface ClassroomData {
   classroomid?: string;
 }
 
-export interface IClassroom {
+
+export type studentClassrooms={
+  classroomId:IClassroom;
+  isLocked:boolean
+}
+
+export type  IClassroom ={
   _id: string;
   subject: string;
-  classroomid: string;
+  classroomid?: string;
   description: string;
   createdAt: Date;
   updatedAt: Date;
-  teacherid?: mongoose.Types.ObjectId;
+  teacherid?: mongoose.Types.ObjectId | any;
   students?: StudentData[];
   examsid?: mongoose.Types.ObjectId[];
   materialsid?: mongoose.Types.ObjectId[];
@@ -69,6 +75,27 @@ export type TeacherProfileFormData = {
   pgCertificate: File | null;
   photo: File | null;
 };
+
+export interface TeacherProfileFetch {
+  _id: string;
+  username: string;
+  name: string;
+  gender ?:string;
+  photo?:string | null;
+  phone? :number | number;
+  Is_block: boolean;
+  JoinedDate: string;
+  experiences?: Experience[];
+  graduation?: Graduation | null;
+  postGraduation?: Graduation | null;
+  ugCertificate?: string | null;
+  pgCertificate?: string |null;
+  Approvel?: {
+    isApproved?: boolean;
+    message?:string
+  };
+  role:string,
+}
 
 export type StudentProfileFormData = {
   name: string;

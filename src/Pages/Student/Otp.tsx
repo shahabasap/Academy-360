@@ -3,7 +3,7 @@ import Otp from "../../components/StudentAndTeacher/Others/otp";
 
 const StudentOtpPage: React.FC = () => {
     
-  return <Otp role="student" />;
+  return <Otp />;
 };
 
 export default StudentOtpPage;

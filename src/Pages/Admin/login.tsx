@@ -18,7 +18,7 @@ const AdminLoginPage: React.FC = () => {
     try {
       const adminData = await ApiController.AdminLogin(values)
       dispatch(adminLogin(adminData.data));
-
+      localStorage.setItem('role','admin'); 
       navigate('/admin/dashboard');
     } catch (error) {
       toast.error("Login failed. Please try again.");

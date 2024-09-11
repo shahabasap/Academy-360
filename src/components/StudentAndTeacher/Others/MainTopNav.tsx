@@ -35,9 +35,11 @@ const Navbar = () => {
       if (user === "Student") {
         logoutResponse = await ApiController.StudentLogout();
         dispatch(userLogout());
+        navigate('/login')
       } else if (user === "Teacher") {
         logoutResponse = await ApiController.TeacherLogout();
         dispatch(teacherLogout());
+        navigate('/teacher')
       }
       handleLogoutResponse(logoutResponse);
       toast.success('Logout successful!');
@@ -50,7 +52,7 @@ const Navbar = () => {
   const handleLogoutResponse = (response: any) => {
     if (response) {
       console.log("Logout successful:", response.data);
-      navigate('/login');
+     
     } else {
       console.log("No response received.");
     }
@@ -137,7 +139,7 @@ const Navbar = () => {
           
 
           {/* Dropdown menu for smaller screens */}
-          <div className='relative' ref={dropdownRef}>
+          {user?(<div className='relative' ref={dropdownRef}>
             <span
               className='w-11 h-11 border border-white border-opacity-30 rounded-full flex justify-center items-center text-[#2E236C] cursor-pointer bg-white hover:bg-gray-200 transition-colors duration-300 ease-in-out'
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -149,7 +151,14 @@ const Navbar = () => {
                 <button
                   className='flex items-center w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-purple-600 transition-colors duration-300 ease-in-out'
                   onClick={() => {
-                    navigate('/teacher/profile');
+                    if(user=="Teacher")
+                    {
+                      navigate('/teacher/profile');
+                    }else
+                    {
+                      navigate('/profile');
+                    }
+                   
                     setIsDropdownOpen(false);
                   }}
                 >
@@ -183,7 +192,8 @@ const Navbar = () => {
                 </button>
               </div>
             )}
-          </div>
+          </div>):null}
+          
         </div>
       </div>
 

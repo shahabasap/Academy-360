@@ -6,8 +6,10 @@ import useRole from '../../../hooks/RoleState';
 import ApiController from '../../../Api/apiCalls';
 import convertToFormData from '../../../utils/formdataConverter';
 import { TeacherProfileFormData, StudentProfileFormData, Experience, Graduation } from '../../../types/commonType';
-import { TeacherData } from '../../../features/teacher/teacherSlice';
-import { userData } from '../../../features/user/userSlice';
+import { TeacherData, teacherLogin, teacherLogout } from '../../../features/teacher/teacherSlice';
+import { userData, userLogin } from '../../../features/user/userSlice';
+import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 
 // Initial values for form state
 const initialTeacherFormState: TeacherProfileFormData = {
@@ -231,14 +233,44 @@ const EducationSection: React.FC<{
 
 // Main component
 const ProfileManagement: React.FC = () => {
+  const dispatch=useDispatch()
   const role = useRole();
+  const navigate=useNavigate()
   const user = useSelector(userData);
-  const userId = user._id;
+  const userId = user?._id;
   const teacher=useSelector(TeacherData)
-  const teacherId=teacher._id
+  const teacherId=teacher?._id
+  const teacherStatus=teacher?.Approvel.isApproved
   const [formValues, setFormValues] = useState<TeacherProfileFormData | StudentProfileFormData>(
     role === 'Teacher' ? initialTeacherFormState : initialStudentFormState
   );
+
+
+      useEffect(()=>{
+    
+        const fetchData=async()=>{
+          if(role=="Teacher")
+            {
+              const teacher=await ApiController.teacherData(teacherId)
+            
+              if(teacher.status==200)
+              {
+            
+                  dispatch(teacherLogin(teacher.data))
+              }
+   
+            }else if(role=="Student")
+            {
+             
+             const student=await ApiController.studentData(userId)
+             if (student.status==200) {
+                  dispatch(userLogin(student.data))
+             }
+            }
+        }
+        fetchData()
+        
+      },[])
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -329,6 +361,10 @@ const ProfileManagement: React.FC = () => {
         await ApiController.updateStudentProfile(formData, userId);
       }
       toast.success('Profile updated successfully');
+      if(!teacherStatus)
+      {
+        navigate('teacher/profile/update-profilo')
+      }
     } catch (error) {
       toast.error('Error updating profile');
     }
@@ -336,7 +372,7 @@ const ProfileManagement: React.FC = () => {
 
   return (
     <div className="flex flex-row min-h-screen bg-gray-50">
-      <div className='w-20 md:w-64'><ProfileSidebar /></div>
+      {teacherStatus ?(<div className='w-20 md:w-64'><ProfileSidebar /></div>):null}
       <div className="flex flex-col w-full pl-20 pt-2">
         <form onSubmit={handleSubmit} className="space-y-6">
           <h2 className="text-2xl font-semibold">Profile Management</h2>

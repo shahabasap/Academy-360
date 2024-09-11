@@ -88,10 +88,12 @@ const Otp: React.FC = () => {
       if(role=="student")
       {
         dispatch(userLogin(response.data));
+        localStorage.setItem('role','student'); 
         navigate('/classroom');
       }else if(role=="teacher")
       {
         dispatch(teacherLogin(response.data));
+        localStorage.setItem('role','teacher'); 
         navigate('/teacher/classroom');
       }
     } catch (error) {

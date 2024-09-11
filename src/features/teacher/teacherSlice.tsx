@@ -1,17 +1,41 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 export interface TeacherState {
-  teacher: any | null; // Define the type for teacher if you have a specific type
+  teacher: any | null;
   login: boolean;
   role: string | null;
-  TeacherClass: any | null; // Define the type for TeacherClass if you have a specific type
+  TeacherClass: any | null;
 }
 
-const storedteacherInfo = localStorage.getItem('teacherInfo');
-const storedteacherClassroomInfo = localStorage.getItem('teacherClassroomInfo');
+const isValidJSON = (str: string | null): boolean => {
+  if (str === null) return false;
+  try {
+    JSON.parse(str);
+    return true;
+  } catch (e) {
+    return false;
+  }
+};
+
+const getStoredValue = (key: string): any => {
+  try {
+    const storedValue = localStorage.getItem(key);
+    if (storedValue === null) return null;
+    if (!isValidJSON(storedValue)) return null;
+    return JSON.parse(storedValue);
+  } catch (error) {
+    console.error(`Error parsing ${key} from localStorage:`, error);
+    return null;
+  }
+};
+
+
+const storedteacherInfo = getStoredValue('teacherInfo');
+const storedteacherClassroomInfo = getStoredValue('teacherClassroomInfo');
+
 const initialState: TeacherState = {
-  teacher: storedteacherInfo ? JSON.parse(storedteacherInfo) : null,
-  TeacherClass: storedteacherClassroomInfo ? JSON.parse(storedteacherClassroomInfo) : null,
+  teacher: storedteacherInfo,
+  TeacherClass: storedteacherClassroomInfo,
   login: !!storedteacherInfo,
   role: 'teacher',
 };
@@ -20,23 +44,31 @@ const teacherSlice = createSlice({
   name: 'teacherAuth',
   initialState,
   reducers: {
-    teacherLogin: (state, action: PayloadAction<any>) => { // Replace `any` with your teacher type
+    teacherLogin: (state, action: PayloadAction<any>) => {
       state.teacher = action.payload;
       state.login = true;
       state.role = 'teacher';
-      localStorage.setItem('teacherInfo', JSON.stringify(action.payload));
+      try {
+        localStorage.setItem('teacherInfo', JSON.stringify(action.payload));
+      } catch (error) {
+        console.error('Failed to store teacher info:', error);
+      }
     },
     teacherLogout: (state) => {
       state.teacher = null;
       state.login = false;
       state.role = null;
       localStorage.removeItem('teacherInfo');
-      localStorage.removeItem('teacherClassroomInfo'); // Clear classroom info on logout
-      state.TeacherClass = null; // Clear classroom info in state
+      localStorage.removeItem('teacherClassroomInfo');
+      state.TeacherClass = null;
     },
-    TeacherClassLogin: (state, action: PayloadAction<any>) => { // Replace `any` with your classroom type
+    TeacherClassLogin: (state, action: PayloadAction<any>) => {
       state.TeacherClass = action.payload;
-      localStorage.setItem('teacherClassroomInfo', JSON.stringify(action.payload));
+      try {
+        localStorage.setItem('teacherClassroomInfo', JSON.stringify(action.payload));
+      } catch (error) {
+        console.error('Failed to store teacher classroom info:', error);
+      }
     },
     TeacherClassLogout: (state) => {
       state.TeacherClass = null;
@@ -45,11 +77,16 @@ const teacherSlice = createSlice({
   },
 });
 
-export const { teacherLogin, teacherLogout, TeacherClassLogin, TeacherClassLogout } = teacherSlice.actions;
+export const { 
+  teacherLogin, 
+  teacherLogout, 
+  TeacherClassLogin, 
+  TeacherClassLogout 
+} = teacherSlice.actions;
 
 export const selectTeacher = (state: { teacher: TeacherState }) => state.teacher.login;
 export const role = (state: { teacher: TeacherState }) => state.teacher.role;
-export const TeacherData = (state: { teacher: TeacherState }) => state.teacher.teacher;
-export const selectTeacherClass = (state: { teacher: TeacherState }) => state.teacher.TeacherClass;
+export const TeacherData = (state: { teacher: TeacherState }) => state.teacher.teacher || null;
+export const selectTeacherClass = (state: { teacher: TeacherState }) => state.teacher.TeacherClass || null;
 
 export default teacherSlice.reducer;

@@ -14,6 +14,8 @@ const StudentLoginPage = () => {
       try {
         const response = await axios.post('/api/auth/login', values);
         dispatch(userLogin(response.data));
+        localStorage.setItem('role','student'); 
+
         toast.success("Student logged in successfully!");
         navigate('/classroom');
 

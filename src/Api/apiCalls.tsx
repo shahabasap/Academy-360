@@ -2,9 +2,10 @@ import { AxiosResponse } from 'axios';
 import DashboardData from '../types/dashboard'
 import { ClassroomData, StudentProfileFormData, TeacherProfileFormData } from '../types/commonType';
 import { useApi } from './axiosInstance';
-import {Teacher} from '../types/commonType'
+import {Teacher,TeacherProfileFetch} from '../types/commonType'
 import axios from 'axios'
 import convertToFormData from '../utils/formdataConverter';
+
 
 
 
@@ -46,6 +47,19 @@ class ApiController {
       throw new Error('Failed to fetch teachers. Please try again later.');
     }
   }
+  // Fetch Classrom using classroom id---------------------------
+  async classroomData(classroomId:string): Promise<any> {
+ 
+      return await this.axiosInstance.get(`/classroom/${classroomId}`);
+    
+  }
+
+  async ClassroomIsInBucket(classroomId:string,studentId:string): Promise<any> {
+ 
+      return await this.axiosInstance.get(`/classroom-lock?classroomId=${classroomId}&studentId=${studentId}`);
+    
+  }
+
 
   
 
@@ -58,6 +72,7 @@ class ApiController {
       return error;
     }
   }
+
 
 
   // Admin---------------------------------------------
@@ -99,6 +114,24 @@ class ApiController {
       return error;
     }
   }
+  async RejectTeacher(teacherid: string, rejectionReason: string): Promise<any> {
+    try {
+      const response: AxiosResponse<any> = await this.axiosInstance.patch(`/admin/teacher/reject/${teacherid}`,{rejectionReason});
+     
+      return response;
+    } catch (error: unknown) {
+      return error;
+    }
+  }
+  async approveTeacher(teacherid: string): Promise<any> {
+    try {
+      const response: AxiosResponse<any> = await this.axiosInstance.patch(`/admin/teacher/approve/${teacherid}`);
+      
+      return response;
+    } catch (error: unknown) {
+      return error;
+    }
+  }
 
   // Admin: Block Student
   async blockStudent(studentId: string): Promise<any> {
@@ -125,7 +158,7 @@ async editTeacherProfile(teacherId: string, Data: any): Promise<any> {
   console.log(Data);
   
     try {
-    console.log("Starting API call to update teacher profile with ID:", teacherId);
+   
     
     const formData =await convertToFormData(Data);
 
@@ -140,7 +173,7 @@ async editTeacherProfile(teacherId: string, Data: any): Promise<any> {
       formData,
     );
     
-    console.log("API response received:", response);
+    
     return response;
   } catch (error: any) {
     console.error("API call failed:", error);
@@ -152,12 +185,20 @@ async editTeacherProfile(teacherId: string, Data: any): Promise<any> {
 
 
 
-  async fetchTeachers(page: number, limit: number): Promise<{ data: Teacher[], totalPages: number }> {
+  async fetchTeachers(page: number, limit: number): Promise<{ data: TeacherProfileFetch[], totalPages: number }> {
     try {
-      const response: AxiosResponse<{ data: Teacher[], totalPages: number }> = await this.axiosInstance.get(`/admin/teachers`, {
+      const response: AxiosResponse<{ data: TeacherProfileFetch[], totalPages: number }> = await this.axiosInstance.get(`/admin/teachers`, {
         params: { page, limit },
       });
       return response.data;
+    } catch (error) {
+      throw new Error('Failed to fetch teachers. Please try again later.');
+    }
+  }
+  async teacherData(teacherId:string): Promise<any> {
+    try {
+      const response: AxiosResponse<any> = await this.axiosInstance.get(`/teacher/profile/${teacherId}`);
+      return response;
     } catch (error) {
       throw new Error('Failed to fetch teachers. Please try again later.');
     }
@@ -302,7 +343,6 @@ async editTeacherProfile(teacherId: string, Data: any): Promise<any> {
     try {
 
       const response = await this.axiosInstance.post('/addClassroom', {classroomid, studentid});
-       console.log(response)
       return response;
  
     } catch (error) {
@@ -319,6 +359,14 @@ async editTeacherProfile(teacherId: string, Data: any): Promise<any> {
       return error;
     }
   };
+  async studentData(studentId:string): Promise<any> {
+    try {
+      const response: AxiosResponse<any> = await this.axiosInstance.get(`/teacher/profile/${studentId}`);
+      return response;
+    } catch (error) {
+      throw new Error('Failed to fetch teachers. Please try again later.');
+    }
+  }
   
 
 }

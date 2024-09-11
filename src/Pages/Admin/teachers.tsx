@@ -3,21 +3,18 @@ import ApiController from '../../Api/apiCalls';
 import AdminMainSidebar from '../../components/Admin/SideBar';
 import AdminMainTopNav from '../../components/Admin/TopNav';
 import ConfirmationModal2 from '../../components/Admin/ConfirmationModal2'; // Adjust the path as needed
+import ProfileModal from '../../components/Admin/ProfileModal'; // New Modal Component for Viewing Profile
+import {TeacherProfileFetch} from '../../types/commonType'
 
-interface Teacher {
-  _id: string;
-  username: string;
-  name: string;
-  Is_block: boolean;
-  JoinedDate: string;
-}
 
 const TeacherManagement = () => {
-  const [teachers, setTeachers] = useState<Teacher[]>([]);
+  const [teachers, setTeachers] = useState<TeacherProfileFetch[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [actionInProgress, setActionInProgress] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [currentTeacherId, setCurrentTeacherId] = useState<string | null>(null);
+  const [currentTeacher, setCurrentTeacher] = useState<TeacherProfileFetch | null>(null);
   const [currentAction, setCurrentAction] = useState<'block' | 'unblock' | null>(null);
 
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -72,6 +69,35 @@ const TeacherManagement = () => {
     }
   };
 
+  const handleViewProfile = (teacher: TeacherProfileFetch) => {
+    setCurrentTeacher(teacher);
+    setIsProfileModalOpen(true);
+  };
+
+  const handleApproval = async (teacherId: string) => {
+    try {
+      await ApiController.approveTeacher(teacherId); // You need to implement this in ApiController
+      fetchTeachers(currentPage);
+    } catch (error: any) {
+      console.error(error);
+      setError(error.message);
+    } finally {
+      setIsProfileModalOpen(false); // Close profile modal after approval
+    }
+  };
+
+  const handleRejection = async (teacherId: string, reason: string) => {
+    try {
+      // await ApiController.rejectTeacher(teacherId, reason); // You need to implement this in ApiController
+      fetchTeachers(currentPage);
+    } catch (error: any) {
+      console.error(error);
+      setError(error.message);
+    } finally {
+      setIsProfileModalOpen(false); // Close profile modal after rejection
+    }
+  };
+
   if (error) {
     return <div className="text-red-500 p-4">{error}</div>;
   }
@@ -90,7 +116,7 @@ const TeacherManagement = () => {
                   <th scope="col" className="px-6 py-3">Email</th>
                   <th scope="col" className="px-6 py-3">Joined Date</th>
                   <th scope="col" className="px-6 py-3">Status</th>
-                  <th scope="col" className="px-6 py-3">Action</th>
+                  <th scope="col" className="px-6 py-3">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -102,7 +128,13 @@ const TeacherManagement = () => {
                       {new Date(teacher.JoinedDate).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4">{teacher.Is_block ? 'Blocked' : 'Active'}</td>
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 flex space-x-2">
+                      <button
+                        onClick={() => handleViewProfile(teacher)}
+                        className="font-medium px-4 py-2 rounded bg-blue-500 hover:bg-blue-600 text-white"
+                      >
+                        View Profile
+                      </button>
                       <button
                         onClick={() => handleBlockUnblock(teacher._id, teacher.Is_block)}
                         disabled={actionInProgress === teacher._id}
@@ -154,6 +186,17 @@ const TeacherManagement = () => {
         onClose={() => setIsModalOpen(false)}
         onConfirm={confirmBlockUnblock}
       />
+
+      {/* Profile Modal */}
+      {currentTeacher && (
+        <ProfileModal
+          isOpen={isProfileModalOpen}
+          onClose={() => setIsProfileModalOpen(false)}
+          teacher={currentTeacher}
+          onApprove={() => handleApproval(currentTeacher._id)}
+          onReject={(reason: string) => handleRejection(currentTeacher._id, reason)}
+        />
+      )}
     </div>
   );
 };

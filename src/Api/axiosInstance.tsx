@@ -6,6 +6,8 @@ const axiosInstance: AxiosInstance = axios.create({
   withCredentials: true,
 });
 
+
+
 // Setup response interceptor
 axiosInstance.interceptors.response.use(
   (response) => {
@@ -18,7 +20,7 @@ axiosInstance.interceptors.response.use(
       switch (error.response.status) {
         case 401:
           // Handle unauthorized access (e.g., redirect to login page)
-          window.location.href = '/login';
+          // window.location.href = '/login';
           break;
         case 400:
           // Redirect to a specific page for blocked access
