@@ -8,9 +8,6 @@ import { userData } from '../../../features/user/userSlice';
 const StudentProfileManagement: React.FC = () => {
   const user=useSelector(userData)
   const userId=user._id
- 
-  
-
   return <ProfileManagement  />;
 };
 

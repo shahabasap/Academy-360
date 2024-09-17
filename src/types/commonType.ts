@@ -64,17 +64,22 @@ export type Graduation = {
   yearTo: string;
 };
 
-export type TeacherProfileFormData = {
+export interface TeacherProfileFormData {
+  _id?:string
   name: string;
+  username?:string
   gender: string;
   phone: string;
-  experiences: Experience[];
-  graduation: Graduation;
-  postGraduation: Graduation;
+  experiences: Array<{ institute: string; yearFrom: string; yearTo: string }>;
+  graduation: { college: string; course: string; yearFrom: string; yearTo: string };
+  postGraduation: { college: string; course: string; yearFrom: string; yearTo: string };
   ugCertificate: File | null;
   pgCertificate: File | null;
   photo: File | null;
-};
+  photourl:string;
+  pgurl:string;
+  ugurl:string;
+}
 
 export interface TeacherProfileFetch {
   _id: string;
@@ -95,18 +100,24 @@ export interface TeacherProfileFetch {
     message?:string
   };
   role:string,
+
 }
 
-export type StudentProfileFormData = {
+export interface StudentProfileFormData {
+  _id?:string
   name: string;
+  username?:string
   gender: string;
   phone: string;
   photo: File | null;
-};
+  photourl:string
 
+
+}
 export interface TecherProfileManagementProps {
   onSubmit: (values: TeacherProfileFormData) => void;
 }
 export interface StudentProfileManagementProps {
   onSubmit: (values: StudentProfileFormData) => void;
 }
+export type FormState = TeacherProfileFormData | StudentProfileFormData;

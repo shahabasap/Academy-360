@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ApiController from '../../Api/apiCalls';
 import AdminMainSidebar from '../../components/Admin/SideBar';
 import AdminMainTopNav from '../../components/Admin/TopNav';
-import ConfirmationModal2 from '../../components/Admin/ConfirmationModal2'; // Adjust the path as needed
+import ConfirmationModal2 from '../../components/common/ConfirmationModal2'; // Adjust the path as needed
 
 interface Classroom {
   _id: string;

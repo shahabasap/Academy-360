@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import AdminMainSidebar from '../../components/Admin/SideBar';
 import AdminMainTopNav from '../../components/Admin/TopNav';
-import ConfirmationModal2 from '../../components/Admin/ConfirmationModal2';
+import ConfirmationModal2 from '../../components/common/ConfirmationModal2';
 import ApiController from '../../Api/apiCalls';
 
 interface Student {

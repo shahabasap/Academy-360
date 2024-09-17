@@ -36,7 +36,7 @@ class ApiController {
       return error;
     }
   }
-  async updateStudentProfile(formData:FormData,studentid:string): Promise<any> {
+  async updateStudentProfile(studentid:string,formData:FormData): Promise<any> {
     try {
    
       const response: AxiosResponse<any> = await this.axiosInstance.put(`/profile/${studentid}`,
@@ -203,22 +203,19 @@ async editTeacherProfile(teacherId: string, Data: any): Promise<any> {
       throw new Error('Failed to fetch teachers. Please try again later.');
     }
   }
-  async updateTeacherProfile(formData:FormData,teacherid:string): Promise<any> {
-    try {
-      console.log("id",teacherid)
-      console.log("forma",formData)
-      const response: AxiosResponse<any> = await this.axiosInstance.put(`/teacher/profile/${teacherid}`,
+  async updateTeacherProfile(teacherid:string,formData:FormData): Promise<any> {
+
+    
+     return await this.axiosInstance.put(`/teacher/profile/${teacherid}`,
         formData,
         { headers: { 'Content-Type': 'multipart/form-data' }, withCredentials: true });
-      return response;
-    } catch (error) {
-      throw new Error('Failed to fetch teachers. Please try again later.');
-    }
+      
+   
   }
  
   async blockTeacher(id: string): Promise<void> {
     try {
-      await this.axiosInstance.put(`/admin/teacher-block/${id}`);
+      return await this.axiosInstance.put(`/admin/teacher-block/${id}`);
     } catch (error) {
       throw new Error('Failed to block the teacher. Please try again later.');
     }
@@ -226,10 +223,29 @@ async editTeacherProfile(teacherId: string, Data: any): Promise<any> {
 
   async unblockTeacher(id: string): Promise<void> {
     try {
-      await this.axiosInstance.put(`/admin/teacher-unblock/${id}`);
+      return await this.axiosInstance.put(`/admin/teacher-unblock/${id}`);
     } catch (error) {
       throw new Error('Failed to unblock the teacher. Please try again later.');
     }
+  }
+
+
+  // attendace ----------------------------------------------------
+
+  async DayAttendance(classroomid: string): Promise<any> {
+  
+      return await this.axiosInstance.post(`/teacher/attendance`,{classroomid});
+    
+  }
+  async getAttendanceByDate(classroomId: string,date:string): Promise<any> {
+  
+      return await this.axiosInstance.get(`/teacher/attendance?classroomId=${classroomId}&date=${date}`);
+    
+  }
+  async UpdateAttendance(classroomid: string,attendenceListId:string,studentid:string): Promise<any> {
+  
+      return await this.axiosInstance.patch(`/teacher/attendance`,{classroomid,attendenceListId,studentid});
+    
   }
 
   
@@ -361,7 +377,7 @@ async editTeacherProfile(teacherId: string, Data: any): Promise<any> {
   };
   async studentData(studentId:string): Promise<any> {
     try {
-      const response: AxiosResponse<any> = await this.axiosInstance.get(`/teacher/profile/${studentId}`);
+      const response: AxiosResponse<any> = await this.axiosInstance.get(`/profile/${studentId}`);
       return response;
     } catch (error) {
       throw new Error('Failed to fetch teachers. Please try again later.');

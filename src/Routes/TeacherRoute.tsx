@@ -16,6 +16,8 @@ import ProfileTeacherClassrooms from "../Pages/Teacher/Profile/classroom";
 import StudentSummaryPage from "../Pages/Student/Dashboard/summary";
 import BegningProfile from "../Pages/Teacher/Profile/BeginProfile";
 import ApprovalPage from "../Pages/Teacher/Profile/ApprovelPage";
+import Attendance from "../Pages/Teacher/Classroom/Attendance";
+import AttendanceListPage from "../Pages/Teacher/Profile/attendanceList";
 
 
 function TeacherRoute() {
@@ -44,9 +46,11 @@ function TeacherRoute() {
         <Route element={<Navbar/>}>
           <Route path="dashboard" element={<StudentSummaryPage />} />
           <Route path="classroom" element={<TeacherClassrooms />} />
+          <Route path="attedance" element={<Attendance />} />
           <Route path="profile" element={<TeacherProfileOverview />} />
           <Route path="profile/management" element={<TeacherProfile />} />
           <Route path="profile/classroom" element={<ProfileTeacherClassrooms />} />
+          <Route path="profile/attendance-book" element={<AttendanceListPage />} />
           </Route>
         </Route>
       </Route>

@@ -1,44 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import ProfileSidebar from './profileSidebar';
 import useRole from '../../../hooks/RoleState';
 import ApiController from '../../../Api/apiCalls';
 import convertToFormData from '../../../utils/formdataConverter';
-import { TeacherProfileFormData, StudentProfileFormData, Experience, Graduation } from '../../../types/commonType';
-import { TeacherData, teacherLogin, teacherLogout } from '../../../features/teacher/teacherSlice';
-import { userData, userLogin } from '../../../features/user/userSlice';
-import { useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { TeacherProfileFormData, StudentProfileFormData, Experience, Graduation, FormState } from '../../../types/commonType';
+import { selectTeacher, TeacherData } from '../../../features/teacher/teacherSlice';
+import { userData } from '../../../features/user/userSlice';
+import useUserData from '../../../hooks/useUserData ';
 
-// Initial values for form state
-const initialTeacherFormState: TeacherProfileFormData = {
-  name: '',
-  gender: '',
-  phone: '',
-  experiences: [{ institute: '', yearFrom: '', yearTo: '' }],
-  graduation: { college: '', course: '', yearFrom: '', yearTo: '' },
-  postGraduation: { college: '', course: '', yearFrom: '', yearTo: '' },
-  ugCertificate: null,
-  pgCertificate: null,
-  photo: null,
-};
-
-const initialStudentFormState: StudentProfileFormData = {
-  name: '',
-  gender: '',
-  phone: '',
-  photo: null,
-};
 
 // Validation functions
-const validateTeacher = (values: TeacherProfileFormData) => {
-  const errors: any = {};
+const validateTeacher = (values: TeacherProfileFormData): Record<string, string> => {
+  const errors: Record<string, string> = {};
 
   if (!values.name) errors.name = 'Name is required';
   if (!values.gender) errors.gender = 'Gender is required';
   if (!/^\d{10}$/.test(values.phone)) errors.phone = 'Phone number must be exactly 10 digits';
-  if (!values.photo) errors.photo = 'Profile photo is required';
+  // if (!values.photo) errors.photo = 'Profile photo is required';
 
   values.experiences.forEach((exp, index) => {
     if (!exp.institute) errors[`experiences[${index}].institute`] = 'Institute is required';
@@ -61,17 +41,23 @@ const validateTeacher = (values: TeacherProfileFormData) => {
   return errors;
 };
 
-const validateStudent = (values: StudentProfileFormData) => {
-  const errors: any = {};
+const validateStudent = (values: StudentProfileFormData): Record<string, string> => {
+  const errors: Record<string, string> = {};
   if (!values.name) errors.name = 'Name is required';
   if (!values.gender) errors.gender = 'Gender is required';
   if (!/^\d{10}$/.test(values.phone)) errors.phone = 'Phone number must be exactly 10 digits';
-  if (!values.photo) errors.photo = 'Profile photo is required';
+  // if (!values.photo) errors.photo = 'Profile photo is required';
   return errors;
 };
-
 // Input Field Component
-const InputField: React.FC<{ label: string, name: string, value: string, onChange: React.ChangeEventHandler<HTMLInputElement>, type?: string, error?: string }> = ({ label, name, value, onChange, type = 'text', error }) => (
+const InputField: React.FC<{ 
+  label: string, 
+  name: string, 
+  value: string, 
+  onChange: React.ChangeEventHandler<HTMLInputElement>, 
+  type?: string, 
+  error?: string 
+}> = ({ label, name, value, onChange, type = 'text', error }) => (
   <div className="flex flex-col">
     <label className="block text-gray-600 mb-1">{label}</label>
     <input
@@ -86,7 +72,13 @@ const InputField: React.FC<{ label: string, name: string, value: string, onChang
 );
 
 // File Input Component
-const FileInput: React.FC<{ label: string, name: string, onChange: React.ChangeEventHandler<HTMLInputElement>, accept: string, error?: string }> = ({ label, name, onChange, accept, error }) => (
+const FileInput: React.FC<{ 
+  label: string, 
+  name: string, 
+  onChange: React.ChangeEventHandler<HTMLInputElement>, 
+  accept: string, 
+  error?: string 
+}> = ({ label, name, onChange, accept, error }) => (
   <div className="flex flex-col">
     <label className="block text-gray-600 mb-1">{label}</label>
     <input
@@ -101,8 +93,8 @@ const FileInput: React.FC<{ label: string, name: string, onChange: React.ChangeE
 );
 
 // Profile Image Preview Component
-const ProfileImagePreview: React.FC<{ photo: File | null }> = ({ photo }) => {
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+const ProfileImagePreview: React.FC<{ photo: File | null,url:string }> = ({ photo,url }) => {
+  const [previewUrl, setPreviewUrl] = useState<string | null>(url);
 
   useEffect(() => {
     if (photo) {
@@ -114,7 +106,11 @@ const ProfileImagePreview: React.FC<{ photo: File | null }> = ({ photo }) => {
     } else {
       setPreviewUrl(null);
     }
-  }, [photo]);
+    if(url)
+    {
+      setPreviewUrl(url)
+    }
+  }, [photo,url]);
 
   return (
     <div className="mb-4">
@@ -137,7 +133,7 @@ const ExperienceSection: React.FC<{
   handleRemove: (index: number) => void;
   errors: Record<string, string>;
 }> = ({
-  data,
+  data = [],
   handleChange,
   handleAdd,
   handleRemove,
@@ -196,12 +192,13 @@ const EducationSection: React.FC<{
   handleChange: (section: 'graduation' | 'postGraduation', e: React.ChangeEvent<HTMLInputElement>) => void;
   errors: Record<string, string>;
 }> = ({ sectionName, data, handleChange, errors }) => (
+
   <div className="border p-4 rounded-lg bg-gray-100">
     <h3 className="text-lg font-semibold">{sectionName.charAt(0).toUpperCase() + sectionName.slice(1)}</h3>
     <InputField
       label="College"
       name={`${sectionName}.college`}
-      value={data.college}
+      value={data.college ? data.college:''}
       onChange={(e) => handleChange(sectionName, e)}
       error={errors[`${sectionName}.college`]}
     />
@@ -223,7 +220,7 @@ const EducationSection: React.FC<{
     <InputField
       label="End Date"
       name={`${sectionName}.yearTo`}
-      value={data.yearTo}
+      value={data?.yearTo}
       onChange={(e) => handleChange(sectionName, e)}
       type="date"
       error={errors[`${sectionName}.yearTo`]}
@@ -231,50 +228,131 @@ const EducationSection: React.FC<{
   </div>
 );
 
-// Main component
 const ProfileManagement: React.FC = () => {
-  const dispatch=useDispatch()
   const role = useRole();
-  const navigate=useNavigate()
-  const user = useSelector(userData);
-  const userId = user?._id;
-  const teacher=useSelector(TeacherData)
-  const teacherId=teacher?._id
-  const teacherStatus=teacher?.Approvel.isApproved
-  const [formValues, setFormValues] = useState<TeacherProfileFormData | StudentProfileFormData>(
-    role === 'Teacher' ? initialTeacherFormState : initialStudentFormState
-  );
+  const { user, showSidebar } = useUserData(role as string)
+  const teacher = useSelector(TeacherData);
+  const teacherId = teacher._id;
+  const student = useSelector(userData);
+  const studentId = student._id;
+ 
+  // Type guard for Teacher profile data
+  const isTeacher = (user: FormState | null): user is TeacherProfileFormData => {
+    return role === 'Teacher' && user !== null;
+  };
 
+ 
+  const [formValues, setFormValues] = useState<FormState>(() => {
+    if (role === 'Teacher') {
+      return {
+        name: user?.name || '',
+        gender: user?.gender || '',
+        phone: user?.phone || '',
+        experiences: [{ institute: '', yearFrom: '', yearTo: '' }],
+        graduation: { college: '', course: '', yearFrom: '', yearTo: '' },
+        postGraduation: { college: '', course: '', yearFrom: '', yearTo: '' },
+        ugCertificate: null,
+        pgCertificate: null,
+        photo: null,
+        photourl: '',
+        pgurl: '',
+        ugurl: ''
+      } as TeacherProfileFormData;
+    } else {
+      // Default to Student type if not Teacher
+      return {
+        name: user?.name || '',
+        gender: user?.gender || '',
+        phone: user?.phone || '',
+        photo: null,
+        photourl: user?.photo || ''
+      } as StudentProfileFormData;
+    }
+  });
 
-      useEffect(()=>{
-    
-        const fetchData=async()=>{
-          if(role=="Teacher")
-            {
-              const teacher=await ApiController.teacherData(teacherId)
-            
-              if(teacher.status==200)
-              {
-            
-                  dispatch(teacherLogin(teacher.data))
-              }
-   
-            }else if(role=="Student")
-            {
-             
-             const student=await ApiController.studentData(userId)
-             if (student.status==200) {
-                  dispatch(userLogin(student.data))
-             }
-            }
+  useEffect(() => {
+    if (user) {
+      setFormValues((prev) => {
+        if (role === 'Teacher' && isTeacher(user)) {
+          return {
+            name: user.name || '',
+            gender: user.gender || '',
+            phone: user.phone || '',
+            experiences: user.experiences.map(exp => ({
+              institute: exp.institute || '',
+              yearFrom: exp.yearFrom.split('T')[0], // Remove time part
+              yearTo: exp.yearTo.split('T')[0]
+            })),
+            graduation: {
+              college: user.graduation.college || '',
+              course: user.graduation.course || '',
+              yearFrom: user.graduation.yearFrom.split('T')[0],
+              yearTo: user.graduation.yearTo.split('T')[0]
+            },
+            postGraduation: {
+              college: user.postGraduation.college || '',
+              course: user.postGraduation.course  ||'',
+              yearFrom: user.postGraduation.yearFrom.split('T')[0],
+              yearTo: user.postGraduation.yearTo.split('T')[0]
+            },
+            ugCertificate: null,
+            pgCertificate: null,
+            photo: null,
+            photourl: user.photo || '',
+            pgurl: user.pgCertificate || '',
+            ugurl: user.ugCertificate || ''
+          } as FormState;
+        } else if (role === 'Student') {
+          return {
+            name: user.name || '',
+            gender: user.gender || '',
+            phone: user.phone || '',
+            photo: null,
+            photourl: user.photo || ''
+          } as FormState;
         }
-        fetchData()
-        
-      },[])
-  const [errors, setErrors] = useState<Record<string, string>>({});
+        return prev as FormState;
+      });
+    }
+  }, [user, role]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, files } = e.target;
+ 
+   
+  const CertificatePreview: React.FC<{ file: File | null; url: string }> = ({ file, url }) => {
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  
+    useEffect(() => {
+      if (file) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setPreviewUrl(reader.result as string);
+        };
+        reader.readAsDataURL(file);
+      } else if (url) {
+        setPreviewUrl(url);
+      } else {
+        setPreviewUrl(null);
+      }
+    }, [file, url]);
+  
+    return (
+      <div className="mb-4">
+        {previewUrl ? (
+          <embed src={previewUrl}  className="w-full h-64 border rounded-lg" />
+        ) : (
+          <div className="w-full h-64 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500">
+            No Certificate Selected
+          </div>
+        )}
+      </div>
+    );
+  };
+
+ 
+  const [errors, setErrors] = useState<Record<string, string>>({});
+ 
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value, type, files } = e.target as HTMLInputElement;
 
     if (type === 'file' && files) {
       const file = files[0];
@@ -282,9 +360,9 @@ const ProfileManagement: React.FC = () => {
     } else {
       setFormValues(prevState => ({ ...prevState, [name]: value }));
     }
-  };
+  }, []);
 
-  const handleExperienceChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleExperienceChange = useCallback((index: number, e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     const fieldName = name.split('.')[1];
     setFormValues(prevState => {
@@ -294,13 +372,13 @@ const ProfileManagement: React.FC = () => {
           ...updatedExperiences[index],
           [fieldName]: value,
         };
-        return { ...prevState, experiences: updatedExperiences };
+        return {...prevState, experiences: updatedExperiences };
       }
       return prevState;
     });
-  };
+  }, []);
 
-  const handleAddExperience = () => {
+  const handleAddExperience = useCallback(() => {
     setFormValues(prevState => {
       if ('experiences' in prevState) {
         return {
@@ -313,9 +391,9 @@ const ProfileManagement: React.FC = () => {
       }
       return prevState;
     });
-  };
+  }, []);
 
-  const handleRemoveExperience = (index: number) => {
+  const handleRemoveExperience = useCallback((index: number) => {
     setFormValues(prevState => {
       if ('experiences' in prevState) {
         return {
@@ -325,9 +403,9 @@ const ProfileManagement: React.FC = () => {
       }
       return prevState;
     });
-  };
+  }, []);
 
-  const handleEducationChange = (section: 'graduation' | 'postGraduation', e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleEducationChange = useCallback((section: 'graduation' | 'postGraduation', e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormValues(prevState => {
       if (section in prevState) {
@@ -341,9 +419,18 @@ const ProfileManagement: React.FC = () => {
       }
       return prevState;
     });
+  }, []);
+
+  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormValues(prevState => ({
+      ...prevState,
+      [name]: value
+    }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
+
     e.preventDefault();
     const validationErrors = role === 'Teacher' 
       ? validateTeacher(formValues as TeacherProfileFormData) 
@@ -352,104 +439,121 @@ const ProfileManagement: React.FC = () => {
       setErrors(validationErrors);
       return;
     }
+  
 
     try {
       const formData = convertToFormData(formValues);
       if (role === 'Teacher') {
-        await ApiController.updateTeacherProfile(formData, teacherId);
+        await ApiController.updateTeacherProfile(teacherId, formData)
+        .then((response)=>{
+          console.log("data",response)
+        }).catch((error)=>{
+          console.log("teacher eror",error)
+        })
       } else {
-        await ApiController.updateStudentProfile(formData, userId);
+        await ApiController.updateStudentProfile(studentId, formData);
       }
       toast.success('Profile updated successfully');
-      if(!teacherStatus)
-      {
-        navigate('teacher/profile/update-profilo')
-      }
     } catch (error) {
       toast.error('Error updating profile');
     }
-  };
+  }, [role, formValues, teacherId, studentId]);
 
   return (
-    <div className="flex flex-row min-h-screen bg-gray-50">
-      {teacherStatus ?(<div className='w-20 md:w-64'><ProfileSidebar /></div>):null}
-      <div className="flex flex-col w-full pl-20 pt-2">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <h2 className="text-2xl font-semibold">Profile Management</h2>
-          <ProfileImagePreview photo={(formValues as any).photo} />
-          <InputField
-            label="Name"
-            name="name"
-            value={formValues.name}
-            onChange={handleChange}
-            error={errors.name}
-          />
-          <InputField
-            label="Gender"
-            name="gender"
-            value={formValues.gender}
-            onChange={handleChange}
-            error={errors.gender}
-          />
-          <InputField
-            label="Phone"
-            name="phone"
-            value={formValues.phone}
-            onChange={handleChange}
-            type="tel"
-            error={errors.phone}
-          />
-          {role === 'Teacher' && (
-            <>
-              <ExperienceSection
-                data={(formValues as TeacherProfileFormData).experiences}
-                handleChange={handleExperienceChange}
-                handleAdd={handleAddExperience}
-                handleRemove={handleRemoveExperience}
-                errors={errors}
-              />
-              <EducationSection
-                sectionName="graduation"
-                data={(formValues as TeacherProfileFormData).graduation}
-                handleChange={handleEducationChange}
-                errors={errors}
-              />
-              <EducationSection
-                sectionName="postGraduation"
-                data={(formValues as TeacherProfileFormData).postGraduation}
-                handleChange={handleEducationChange}
-                errors={errors}
-              />
-         <FileInput
-                label="UG Certificate"
-                name="ugCertificate"
-                onChange={handleChange}
-                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                error={errors['ugCertificate']}
-              />
-              <FileInput
-                label="PG Certificate"
-                name="pgCertificate"
-                onChange={handleChange}
-                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                error={errors['pgCertificate']}
-              />
-            </>
-          )}
-          <FileInput
-            label="Profile Photo"
-            name="photo"
-            onChange={handleChange}
-            accept=".jpg,.jpeg,.png"
-            error={errors['photo']}
-          />
-          <button
-            type="submit"
-            className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition-colors"
-          >
-            Save Changes
-          </button>
-        </form>
+    <div className="flex min-h-screen bg-gray-50">
+      {showSidebar && (
+        <div className="hidden md:block w-64">
+          <ProfileSidebar />
+        </div>
+      )}
+      <div className="flex-grow flex justify-center items-start py-8 px-4 md:px-8">
+        <div className="max-w-xl w-full bg-white rounded-lg shadow-md p-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <InputField
+              label="Name"
+              name="name"
+              value={formValues.name}
+              onChange={handleChange}
+              error={errors.name}
+            />
+            <div className="flex flex-col">
+              <label className="block text-gray-600 mb-1">Gender</label>
+              <select
+                name="gender"
+                value={formValues.gender}
+                onChange={handleSelectChange}
+                className={`border p-2 rounded ${errors.gender ? 'border-red-500' : ''}`}
+              >
+                <option value="">Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+              </select>
+              {errors.gender && <p className="text-red-500 text-xs mt-1">{errors.gender}</p>}
+            </div>
+            <InputField
+              label="Phone Number"
+              name="phone"
+              value={formValues.phone}
+              onChange={handleChange}
+              error={errors.phone}
+            />
+            <FileInput
+              label="Profile Photo"
+              name="photo"
+              onChange={handleChange}
+              accept="image/*"
+              error={errors.photo}
+            />
+             <ProfileImagePreview photo={formValues.photo as any} url={formValues.photourl as string} />
+            
+            {role === 'Teacher' && isTeacher(formValues) && (
+              <>
+                <ExperienceSection
+                  data={formValues.experiences}
+                  handleChange={handleExperienceChange}
+                  handleAdd={handleAddExperience}
+                  handleRemove={handleRemoveExperience}
+                  errors={errors}
+                />
+                <EducationSection
+                  sectionName="graduation"
+                  data={formValues.graduation}
+                  handleChange={handleEducationChange}
+                  errors={errors}
+                />
+                <EducationSection
+                  sectionName="postGraduation"
+                  data={formValues.postGraduation}
+                  handleChange={handleEducationChange}
+                  errors={errors}
+                />
+                <FileInput
+                  label="UG Certificate"
+                  name="ugCertificate"
+                  onChange={handleChange}
+                  accept="image/*"
+                  error={errors.ugCertificate}
+                />
+                 <CertificatePreview file={formValues.ugCertificate} url={formValues.pgurl}/>
+                <FileInput
+                  label="PG Certificate"
+                  name="pgCertificate"
+                  onChange={handleChange}
+                  accept="image/*"
+                  error={errors.pgCertificate}
+                />
+                 <CertificatePreview file={formValues.pgCertificate} url={formValues.ugurl} />
+              </>
+            )}
+
+            <button
+              type="submit"
+              className="bg-blue-500 text-white py-2 px-4 rounded w-full"
+            >
+              Update Profile
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   );

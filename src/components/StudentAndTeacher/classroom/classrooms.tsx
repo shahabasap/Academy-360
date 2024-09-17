@@ -19,6 +19,7 @@ const Classrooms: React.FC = () => {
   const [isAddClassroomModalOpen, setAddClassroomModalOpen] = useState(false);
   const [classrooms, setClassrooms] = useState<IClassroom[] | studentClassrooms[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isCreated, setCreated] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -37,17 +38,18 @@ const Classrooms: React.FC = () => {
           setClassrooms(response.data);
           console.log('data', classrooms);
         } else {
-          toast.error(`Error: ${response?.data?.error || 'Failed to fetch classrooms'}`);
+          console.log(`Error: ${response?.data?.error || 'Failed to fetch classrooms'}`);
         }
       } catch (error: any) {
-        toast.error(`${error.response?.data?.error || 'An error occurred while fetching classrooms'}`);
+        console.log(`${error.response?.data?.error || 'An error occurred while fetching classrooms'}`);
       } finally {
         setLoading(false);
+        setCreated(false)
       }
     };
 
     fetchClassrooms();
-  }, [role, teacher, student, isModalOpen]);
+  }, [role, teacher, student,isCreated]);
 
   const handleCreateClassroom = async (data: ClassroomData) => {
     try {
@@ -57,6 +59,7 @@ const Classrooms: React.FC = () => {
       const created = await ApiController.CreateClassroom(data);
       
       if (created.status === 200) {
+        setCreated(true)
         setModalOpen(false);
         toast.success("Classroom created successfully");
       } else {

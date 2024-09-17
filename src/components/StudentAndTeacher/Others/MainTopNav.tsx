@@ -6,7 +6,7 @@ import { Outlet, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { userClassLogout, userLogout } from '../../../features/user/userSlice';
 import { TeacherClassLogout, teacherLogout } from '../../../features/teacher/teacherSlice';
-import { FaUser, FaSignOutAlt, FaBell, FaCalendarPlus, FaDoorOpen } from 'react-icons/fa'; // Added FaDoorOpen icon
+import { FaUser, FaSignOutAlt, FaBell, FaCalendarPlus, FaDoorOpen,FaUserCheck  } from 'react-icons/fa'; // Added FaDoorOpen icon
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -111,7 +111,7 @@ const Navbar = () => {
 
   return (
     <>
-      <div className='sticky top-0 flex flex-row justify-between items-center h-16 w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 px-4 z-10 sm:px-20 shadow-lg'>
+       <div className='sticky top-0 flex flex-row justify-between items-center h-16 w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 px-4 z-10 sm:px-20 shadow-lg'>
         <div className='flex items-center'>
           <img
             className='h-12 w-12 md:h-16 md:w-16'
@@ -131,11 +131,9 @@ const Navbar = () => {
         <div className='flex flex-row items-center space-x-4 md:space-x-6'>
           {/* Show FaBell icon in all sizes */}
           <FaBell className='text-white w-6 h-auto cursor-pointer hover:text-yellow-300 transition-transform duration-300 transform hover:scale-110 ease-in-out' />
+            
+            <FaUserCheck onClick={()=>navigate('/teacher/attedance')} className='text-white w-6 h-auto cursor-pointer hover:text-green-300 transition-transform duration-300 transform hover:scale-110 ease-in-out' />
 
-          {/* Show FaCalendarPlus in different sizes for different screens */}
-          <div className='hidden sm:block md:hidden'>
-            <FaCalendarPlus className='text-white w-6 h-auto cursor-pointer hover:text-green-300 transition-transform duration-300 transform hover:scale-110 ease-in-out' />
-          </div>
           
 
           {/* Dropdown menu for smaller screens */}

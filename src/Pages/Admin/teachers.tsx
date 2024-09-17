@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ApiController from '../../Api/apiCalls';
 import AdminMainSidebar from '../../components/Admin/SideBar';
 import AdminMainTopNav from '../../components/Admin/TopNav';
-import ConfirmationModal2 from '../../components/Admin/ConfirmationModal2'; // Adjust the path as needed
+import ConfirmationModal2 from '../../components/common/ConfirmationModal2'; // Adjust the path as needed
 import ProfileModal from '../../components/Admin/ProfileModal'; // New Modal Component for Viewing Profile
 import {TeacherProfileFetch} from '../../types/commonType'
 
