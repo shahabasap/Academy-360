@@ -5,11 +5,6 @@ import React from 'react';
 
 
 const TeacherProfileManagement: React.FC = () => {
-
-
- 
-  
-
   return <ProfileManagement  />;
 };
 

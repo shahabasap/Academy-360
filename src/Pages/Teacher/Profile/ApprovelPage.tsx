@@ -2,6 +2,7 @@ import ApprovalMessage from '../../../components/StudentAndTeacher/profile/Appro
 import React from 'react'
 
 const ApprovalPage = () => {
+  
   return (
     <div>
       <ApprovalMessage />

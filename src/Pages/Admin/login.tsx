@@ -17,10 +17,17 @@ const AdminLoginPage: React.FC = () => {
   const handleSubmit = async (values: { username: string; password: string }) => {
     try {
       const adminData = await ApiController.AdminLogin(values)
-      dispatch(adminLogin(adminData.data));
+  
+      if(adminData.status==200)
+      {
+        dispatch(adminLogin(adminData.data));
       localStorage.setItem('role','admin'); 
       navigate('/admin/dashboard');
+
+      }
+      
     } catch (error) {
+      
       toast.error("Login failed. Please try again.");
     }
   };

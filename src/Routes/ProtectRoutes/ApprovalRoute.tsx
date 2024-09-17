@@ -1,27 +1,21 @@
 // ProtectedRoute.tsx
-import { selectTeacher, TeacherData, teacherLogout } from '../../features/teacher/teacherSlice';
+import useUserData from '../../hooks/useUserData ';
 import React from 'react';
-import { useDispatch } from 'react-redux';
-import { useSelector } from 'react-redux';
 import { Navigate, Outlet } from 'react-router-dom';
-
-
+import { TeacherProfileFormData } from '../../types/commonType';
 
 const TeacherProtectRoutes: React.FC = () => {
- const isAuthenticated=useSelector(selectTeacher)
- const teacher=useSelector(TeacherData)
+  const { user } = useUserData("Teacher");
 
- const teacherStatus=teacher?.Approvel?.isApproved
-  if(teacherStatus==true)
-  {
-    return <Navigate to="/teacher" replace />;
+  if (user) {
+    const data = user as TeacherProfileFormData;
+    if (!data?.Approvel?.isApproved) {
+      return <Navigate to="/teacher/profile/update-profilo" replace />;
+    }
   }
-  else if (!isAuthenticated) {
-    return <Navigate to="/teacher" replace />;
-  }
-  
 
-  return <Outlet />;
+  return <Outlet />
+
 };
 
 export default TeacherProtectRoutes;

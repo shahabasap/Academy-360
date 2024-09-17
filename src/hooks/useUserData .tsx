@@ -7,7 +7,7 @@ import { TeacherData, teacherLogin } from '../features/teacher/teacherSlice';
 import { userData, userLogin } from '../features/user/userSlice';
 import { FormState } from '../types/commonType';
 
-function useUserData (Role:string):{user:FormState | null,showSidebar:any}{
+function useUserData (Role:string):{user:FormState | null}{
     const dispatch = useDispatch();
     const role = Role;
     const location = useLocation();
@@ -19,22 +19,14 @@ function useUserData (Role:string):{user:FormState | null,showSidebar:any}{
 
 
     const [user, setUser] = useState(null);
-    const [showSidebar, setShowSidebar] = useState(true);
 
-    useEffect(() => {
-      if (location.pathname === '/teacher/profile/update-profilo') {
-        setShowSidebar(false);
-      } else {
-        setShowSidebar(true);
-      }
-    }, [location.pathname]);
+
     useEffect(() => {
       setTimeout(() => {
       
       const fetchUserData = async () => {
         
         if (role === "Teacher") {
-          console.log("Fetching teacher data");
           const teacher = await ApiController.teacherData(teacherId);
           if (teacher.status === 200) {
             dispatch(teacherLogin(teacher.data));
@@ -60,7 +52,7 @@ function useUserData (Role:string):{user:FormState | null,showSidebar:any}{
   }, [role, teacherId, studentId]);
   
 
-    return { user, showSidebar };
+    return { user };
 };
 
 export default useUserData;

@@ -9,6 +9,8 @@ import { TeacherProfileFormData, StudentProfileFormData, Experience, Graduation,
 import { selectTeacher, TeacherData } from '../../../features/teacher/teacherSlice';
 import { userData } from '../../../features/user/userSlice';
 import useUserData from '../../../hooks/useUserData ';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { Spinner } from 'react-bootstrap';
 
 
 // Validation functions
@@ -65,7 +67,7 @@ const InputField: React.FC<{
       name={name}
       value={value}
       onChange={onChange}
-      className={`border p-2 rounded ${error ? 'border-red-500' : ''}`}
+      className={`border p-2 w-full rounded ${error ? 'border-red-500' : ''}`}
     />
     {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
   </div>
@@ -192,13 +194,13 @@ const EducationSection: React.FC<{
   handleChange: (section: 'graduation' | 'postGraduation', e: React.ChangeEvent<HTMLInputElement>) => void;
   errors: Record<string, string>;
 }> = ({ sectionName, data, handleChange, errors }) => (
-
+  
   <div className="border p-4 rounded-lg bg-gray-100">
     <h3 className="text-lg font-semibold">{sectionName.charAt(0).toUpperCase() + sectionName.slice(1)}</h3>
     <InputField
       label="College"
       name={`${sectionName}.college`}
-      value={data.college ? data.college:''}
+      value={data.college }
       onChange={(e) => handleChange(sectionName, e)}
       error={errors[`${sectionName}.college`]}
     />
@@ -230,17 +232,36 @@ const EducationSection: React.FC<{
 
 const ProfileManagement: React.FC = () => {
   const role = useRole();
-  const { user, showSidebar } = useUserData(role as string)
+  const { user } = useUserData(role as string)
   const teacher = useSelector(TeacherData);
   const teacherId = teacher._id;
   const student = useSelector(userData);
   const studentId = student._id;
- 
+  const [showSidebar,setshowSidebar]=useState(false)
+  const location=useLocation()
+  const [IsSubmit,setIsSubmit]=useState(true)
+  const navigate=useNavigate()
+  const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingData, setIsLoadingData] = useState();
+
   // Type guard for Teacher profile data
   const isTeacher = (user: FormState | null): user is TeacherProfileFormData => {
     return role === 'Teacher' && user !== null;
   };
 
+  useEffect(() => { // Add this line
+    if (location.pathname === '/teacher/profile/update-profilo' && user && role === "Teacher") {
+      if (isTeacher(user)) {
+        if (user?.Approvel?.isApproved==true) {
+          navigate('/teacher')
+        }
+        setIsSubmit(user?.Is_submit ? user.Is_submit : false);
+      }
+    }
+  }, [user]);
+  
+  
+ 
  
   const [formValues, setFormValues] = useState<FormState>(() => {
     if (role === 'Teacher') {
@@ -269,9 +290,15 @@ const ProfileManagement: React.FC = () => {
       } as StudentProfileFormData;
     }
   });
-
+  
   useEffect(() => {
     if (user) {
+      if(role=="Teacher" &&  isTeacher(user))
+        {
+          setshowSidebar(user?.Approvel?.isApproved ? user.Approvel.isApproved :false)
+        }
+      
+     
       setFormValues((prev) => {
         if (role === 'Teacher' && isTeacher(user)) {
           return {
@@ -280,20 +307,20 @@ const ProfileManagement: React.FC = () => {
             phone: user.phone || '',
             experiences: user.experiences.map(exp => ({
               institute: exp.institute || '',
-              yearFrom: exp.yearFrom.split('T')[0], // Remove time part
-              yearTo: exp.yearTo.split('T')[0]
+              yearFrom: exp?.yearFrom?.split('T')[0], // Remove time part
+              yearTo: exp?.yearTo?.split('T')[0]
             })),
             graduation: {
               college: user.graduation.college || '',
               course: user.graduation.course || '',
-              yearFrom: user.graduation.yearFrom.split('T')[0],
-              yearTo: user.graduation.yearTo.split('T')[0]
+              yearFrom: user?.graduation?.yearFrom ? user.graduation.yearFrom.split('T')[0] : '',
+              yearTo: user?.graduation?.yearTo ? user.graduation.yearTo.split('T')[0] : ''
             },
             postGraduation: {
               college: user.postGraduation.college || '',
               course: user.postGraduation.course  ||'',
-              yearFrom: user.postGraduation.yearFrom.split('T')[0],
-              yearTo: user.postGraduation.yearTo.split('T')[0]
+              yearFrom: user?.postGraduation?.yearFrom ? user.postGraduation.yearFrom.split('T')[0] : '',
+              yearTo: user?.postGraduation?.yearTo ? user.postGraduation.yearTo.split('T')[0] : ''
             },
             ugCertificate: null,
             pgCertificate: null,
@@ -316,8 +343,15 @@ const ProfileManagement: React.FC = () => {
     }
   }, [user, role]);
 
- 
-   
+  // if (isLoadingData) {
+  //   return (
+  //     <div className="flex justify-center items-center min-h-screen">
+  //       <Spinner />
+  //     </div>
+  //   );
+  // }
+  
+  
   const CertificatePreview: React.FC<{ file: File | null; url: string }> = ({ file, url }) => {
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   
@@ -440,22 +474,21 @@ const ProfileManagement: React.FC = () => {
       return;
     }
   
-
+  setIsLoading(true);
     try {
       const formData = convertToFormData(formValues);
       if (role === 'Teacher') {
         await ApiController.updateTeacherProfile(teacherId, formData)
-        .then((response)=>{
-          console.log("data",response)
-        }).catch((error)=>{
-          console.log("teacher eror",error)
-        })
+        setIsSubmit(true);
       } else {
         await ApiController.updateStudentProfile(studentId, formData);
       }
       toast.success('Profile updated successfully');
+      
     } catch (error) {
       toast.error('Error updating profile');
+    }finally{
+      setIsLoading(false);
     }
   }, [role, formValues, teacherId, studentId]);
 
@@ -466,9 +499,18 @@ const ProfileManagement: React.FC = () => {
           <ProfileSidebar />
         </div>
       )}
+      {IsSubmit &&(     <div className="fixed top-44 right-12">
+  <div className="animate-bounce bg-gradient-to-r  rounded-md p-4 shadow-lg border border-red-600">
+    <button onClick={()=>{navigate('/teacher/profile/approval')}} className="bg-white  font-semibold py-2 px-6 rounded-full shadow-md hover:bg-red-500 hover:text-white transition-transform transform hover:scale-105 duration-300 ease-in-out">
+      Click Here for more updates
+    </button>
+  </div>
+</div>)}
+ 
       <div className="flex-grow flex justify-center items-start py-8 px-4 md:px-8">
-        <div className="max-w-xl w-full bg-white rounded-lg shadow-md p-6">
+        <div className="max-w-3xl w-full bg-white rounded-lg shadow-md p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
+            <h2 className='text-2xl text-center'>Profile Management</h2>
             <InputField
               label="Name"
               name="name"
@@ -476,7 +518,8 @@ const ProfileManagement: React.FC = () => {
               onChange={handleChange}
               error={errors.name}
             />
-            <div className="flex flex-col">
+            <div className="flex flex-col md:flex-row">
+              <div className='w-1/2'>
               <label className="block text-gray-600 mb-1">Gender</label>
               <select
                 name="gender"
@@ -489,14 +532,20 @@ const ProfileManagement: React.FC = () => {
                 <option value="Female">Female</option>
               </select>
               {errors.gender && <p className="text-red-500 text-xs mt-1">{errors.gender}</p>}
-            </div>
-            <InputField
+              </div>
+             
+              <div className='w-1/2'>
+              <InputField
               label="Phone Number"
               name="phone"
               value={formValues.phone}
               onChange={handleChange}
               error={errors.phone}
             />
+              </div>
+             
+            </div>
+           
             <FileInput
               label="Profile Photo"
               name="photo"
@@ -546,12 +595,14 @@ const ProfileManagement: React.FC = () => {
               </>
             )}
 
-            <button
-              type="submit"
-              className="bg-blue-500 text-white py-2 px-4 rounded w-full"
-            >
-              Update Profile
-            </button>
+<button
+  type="submit"
+  disabled={isLoading}
+  className="bg-blue-500 text-white py-2 px-4 rounded w-full"
+>
+  {isLoading ? 'Updating...' : 'Update Profile'}
+</button>
+
           </form>
         </div>
       </div>

@@ -79,6 +79,11 @@ export interface TeacherProfileFormData {
   photourl:string;
   pgurl:string;
   ugurl:string;
+  Approvel?: {
+    isApproved?: boolean;
+    message?:string
+  };
+  Is_submit?:boolean
 }
 
 export interface TeacherProfileFetch {

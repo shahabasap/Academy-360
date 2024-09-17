@@ -99,7 +99,7 @@ class ApiController {
   async  AdminLogin(values:{ username: string; password: string }): Promise<any> {
     try {
       const response: AxiosResponse<DashboardData> = await this.axiosInstance.post('/auth/admin/login', values);
-      return response.data;
+      return response;
     } catch (error: unknown) {
      
       return error;

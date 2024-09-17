@@ -7,8 +7,7 @@ import { Navigate, Outlet } from 'react-router-dom';
 
 
 
-const 
-TeacherProtectRoutes: React.FC = () => {
+const TeacherProtectRoutes: React.FC = () => {
  const isAuthenticated=useSelector(selectTeacher)
  const teacher=useSelector(TeacherData)
 
