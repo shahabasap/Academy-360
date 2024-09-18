@@ -47,7 +47,7 @@ export default function CustomizedTables() {
   const classroom = useSelector(selectTeacherClass);
   const classroomId = classroom?._id || '';
   
-  const [attendance, setAttendance] = useState<Attendance>();
+  const [attendance, setAttendance] = useState<Attendance|null>();
   const [attendanceList, setAttendanceList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -60,9 +60,12 @@ export default function CustomizedTables() {
     setError(''); // Reset any previous errors
     try {
       const response = await ApiController.DayAttendance(classroomId);
+    
       setAttendance(response.data);
-      setAttendanceList(response.data.AttedenceDataSet); // Set the fetched data to state
+      setAttendanceList(response.data.AttedenceDataSet || []); // Set the fetched data to state
     } catch (err) {
+      setAttendanceList([])
+      setAttendance(null)
       console.error('Fetch Attendance Error:', err);
       setError('Something went wrong while fetching attendance data.');
       toast.error('Error fetching attendance data');
@@ -128,6 +131,18 @@ export default function CustomizedTables() {
     return (
       <Container sx={{ paddingTop: '20px' }}>
         <Alert severity="error">{error}</Alert>
+      </Container>
+    );
+  }
+
+  // Display "Students not in the classroom" message if attendanceList is empty
+  if (!attendanceList.length) {
+    return (
+      <Container sx={{ paddingTop: '40px', paddingBottom: '40px', textAlign: 'center' }}>
+        <Paper elevation={3} sx={{ padding: '24px', maxWidth: 800, margin: '0 auto' }}>
+          <h2 style={{ marginBottom: '16px' }}>Students not in the classroom</h2>
+          <p style={{ fontSize: '18px', color: '#666' }}>No students are currently attending this class.</p>
+        </Paper>
       </Container>
     );
   }

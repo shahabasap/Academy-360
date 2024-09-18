@@ -9,15 +9,17 @@ import { TeacherClassLogout, teacherLogout } from '../../../features/teacher/tea
 import { FaUser, FaSignOutAlt, FaBell, FaCalendarPlus, FaDoorOpen,FaUserCheck  } from 'react-icons/fa'; // Added FaDoorOpen icon
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import useUserData from '../../../hooks/useUserData ';
 
 const Navbar = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const user = useRole();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
+  const role=useRole()
+  const{user} =useUserData(role)
+  const iconLetter=user?.name?.slice(0,1).toUpperCase()
   const handleLogout = () => {
     setIsDropdownOpen(false);
     setIsModalOpen(true);
@@ -32,11 +34,11 @@ const Navbar = () => {
     let logoutResponse;
 
     try {
-      if (user === "Student") {
+      if (role === "Student") {
         logoutResponse = await ApiController.StudentLogout();
         dispatch(userLogout());
         navigate('/login')
-      } else if (user === "Teacher") {
+      } else if (role === "Teacher") {
         logoutResponse = await ApiController.TeacherLogout();
         dispatch(teacherLogout());
         navigate('/teacher')
@@ -66,30 +68,36 @@ const Navbar = () => {
     try {
       let leaveResponse;
 
-      if (user === "Student") {
-        // leaveResponse = await ApiController.LeaveClassroomAsStudent();
-        dispatch(userClassLogout())
-        navigate('/classroom')
-
-      } else if (user === "Teacher") {
-        // leaveResponse = await ApiController.LeaveClassroomAsTeacher();
-        dispatch(TeacherClassLogout())
-        navigate('/teacher/classroom')
+      if (role === "Student") {
+        leaveResponse = await ApiController.LeaveClassroomAsStudent();
+       
+      } else if (role === "Teacher") {
+        leaveResponse = await ApiController.LeaveClassroomAsTeacher();
+        
       }
 
-      // if (leaveResponse?.status === 200) {
-      //   toast.success('Successfully left the classroom!');
-      //   navigate('/'); // Navigate to a different page after leaving the classroom
-      // } else {
-      //   toast.error('Failed to leave the classroom.');
-      // }
+      if (leaveResponse?.status === 200) {
+        toast.success('Successfully left the classroom!');
+       if(role=="Teacher")
+       {
+        dispatch(TeacherClassLogout());
+        navigate('/teacher/classroom');
 
+       }else if(role=="Student")
+       {
+        dispatch(userClassLogout());
+        navigate('/classroom');
+       }
+      } else {
+        throw new Error('Failed to leave the classroom');
+      }
     } catch (error) {
       toast.error('An error occurred while leaving the classroom.');
+    } finally {
+      setIsDropdownOpen(false);
     }
-
-    setIsDropdownOpen(false);
   };
+
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -128,28 +136,28 @@ const Navbar = () => {
           </div>
         </div>
 
-        <div className='flex flex-row items-center space-x-4 md:space-x-6'>
+       {user ?(<div className='flex flex-row items-center space-x-4 md:space-x-6'>
           {/* Show FaBell icon in all sizes */}
           <FaBell className='text-white w-6 h-auto cursor-pointer hover:text-yellow-300 transition-transform duration-300 transform hover:scale-110 ease-in-out' />
             
-            <FaUserCheck onClick={()=>navigate('/teacher/attedance')} className='text-white w-6 h-auto cursor-pointer hover:text-green-300 transition-transform duration-300 transform hover:scale-110 ease-in-out' />
+          {role=="Teacher" && ( <FaUserCheck onClick={()=>navigate('/teacher/attedance')} className='text-white w-6 h-auto cursor-pointer hover:text-green-300 transition-transform duration-300 transform hover:scale-110 ease-in-out' />)} 
 
           
 
           {/* Dropdown menu for smaller screens */}
-          {user?(<div className='relative' ref={dropdownRef}>
+          <div className='relative' ref={dropdownRef}>
             <span
               className='w-11 h-11 border border-white border-opacity-30 rounded-full flex justify-center items-center text-[#2E236C] cursor-pointer bg-white hover:bg-gray-200 transition-colors duration-300 ease-in-out'
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
             >
-              <span className='font-bold text-lg'>A</span>
+              <span className='font-bold text-lg'>{iconLetter ? iconLetter :'N'}</span>
             </span>
             {isDropdownOpen && (
               <div className='absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-xl'>
                 <button
                   className='flex items-center w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-purple-600 transition-colors duration-300 ease-in-out'
                   onClick={() => {
-                    if(user=="Teacher")
+                    if(role=="Teacher")
                     {
                       navigate('/teacher/profile');
                     }else
@@ -190,9 +198,9 @@ const Navbar = () => {
                 </button>
               </div>
             )}
-          </div>):null}
+          </div>
           
-        </div>
+        </div>):null}
       </div>
 
       <ConfirmationModal

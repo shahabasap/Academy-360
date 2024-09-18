@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useSelector } from 'react-redux';
-import { toast } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
 import ProfileSidebar from './profileSidebar';
 import useRole from '../../../hooks/RoleState';
 import ApiController from '../../../Api/apiCalls';
@@ -240,6 +240,7 @@ const ProfileManagement: React.FC = () => {
   const [showSidebar,setshowSidebar]=useState(false)
   const location=useLocation()
   const [IsSubmit,setIsSubmit]=useState(true)
+  const [IsApprove,setApprove]=useState(false)
   const navigate=useNavigate()
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingData, setIsLoadingData] = useState();
@@ -253,10 +254,18 @@ const ProfileManagement: React.FC = () => {
     if (location.pathname === '/teacher/profile/update-profilo' && user && role === "Teacher") {
       if (isTeacher(user)) {
         if (user?.Approvel?.isApproved==true) {
+          
           navigate('/teacher')
         }
         setIsSubmit(user?.Is_submit ? user.Is_submit : false);
       }
+    }
+    if (isTeacher(user)) {
+      if (user?.Approvel?.isApproved==true) {
+        
+        setApprove(true)
+      }
+     
     }
   }, [user]);
   
@@ -296,6 +305,10 @@ const ProfileManagement: React.FC = () => {
       if(role=="Teacher" &&  isTeacher(user))
         {
           setshowSidebar(user?.Approvel?.isApproved ? user.Approvel.isApproved :false)
+        }
+        if(role=="Student")
+        {
+          setshowSidebar(true)
         }
       
      
@@ -480,6 +493,7 @@ const ProfileManagement: React.FC = () => {
       if (role === 'Teacher') {
         await ApiController.updateTeacherProfile(teacherId, formData)
         setIsSubmit(true);
+
       } else {
         await ApiController.updateStudentProfile(studentId, formData);
       }
@@ -499,13 +513,21 @@ const ProfileManagement: React.FC = () => {
           <ProfileSidebar />
         </div>
       )}
-      {IsSubmit &&(     <div className="fixed top-44 right-12">
-  <div className="animate-bounce bg-gradient-to-r  rounded-md p-4 shadow-lg border border-red-600">
-    <button onClick={()=>{navigate('/teacher/profile/approval')}} className="bg-white  font-semibold py-2 px-6 rounded-full shadow-md hover:bg-red-500 hover:text-white transition-transform transform hover:scale-105 duration-300 ease-in-out">
-      Click Here for more updates
-    </button>
+{role === "Teacher" && IsSubmit && IsApprove==false ? (
+  <div className="fixed top-44 right-12">
+    <div className="animate-bounce bg-gradient-to-r rounded-md p-4 shadow-lg border border-red-600">
+      <button
+        onClick={() => {
+          navigate('/teacher/profile/approval');
+        }}
+        className="bg-white font-semibold py-2 px-6 rounded-full shadow-md hover:bg-red-500 hover:text-white transition-transform transform hover:scale-105 duration-300 ease-in-out"
+      >
+        Click Here for more updates
+      </button>
+    </div>
   </div>
-</div>)}
+) : null}
+
  
       <div className="flex-grow flex justify-center items-start py-8 px-4 md:px-8">
         <div className="max-w-3xl w-full bg-white rounded-lg shadow-md p-6">
@@ -605,7 +627,9 @@ const ProfileManagement: React.FC = () => {
 
           </form>
         </div>
+        
       </div>
+      <ToastContainer />
     </div>
   );
 };

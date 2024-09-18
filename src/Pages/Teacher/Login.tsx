@@ -13,6 +13,7 @@ const TeacherLoginPage = () => {
     const handleTeacherLogin = async (values: { username: string; password: string }) => {
       try {
         const response = await axios.post('/api/auth/teacher/login', values);
+       
         localStorage.setItem('role','teacher'); 
         dispatch(teacherLogin(response.data));
         toast.success("Teacher logged in successfully!");

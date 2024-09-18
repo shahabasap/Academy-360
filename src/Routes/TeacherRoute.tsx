@@ -18,6 +18,7 @@ import BegningProfile from "../Pages/Teacher/Profile/BeginProfile";
 import ApprovalPage from "../Pages/Teacher/Profile/ApprovelPage";
 import Attendance from "../Pages/Teacher/Classroom/Attendance";
 import AttendanceListPage from "../Pages/Teacher/Profile/attendanceList";
+import ProtectTeacherClassroom from "./ProtectRoutes/ProtectTeacherClassroom";
 
 
 // TeacherRoute.tsx
@@ -43,15 +44,19 @@ function TeacherRoute() {
         
             {/* Approval Route to check if the teacher is approved */}
                      {/* Profile and approval routes */}
-                     <Route element={<ApprovalRoute />}>
+              <Route element={<ApprovalRoute />}>
               {/* Approved routes */}
-              <Route path="dashboard" element={<StudentSummaryPage />} />
+
               <Route path="classroom" element={<TeacherClassrooms />} />
-              <Route path="attendance" element={<Attendance />} />
               <Route path="profile" element={<TeacherProfileOverview />} />
               <Route path="profile/management" element={<TeacherProfile />} />
+
+              <Route element={<ProtectTeacherClassroom />}>
               <Route path="profile/classroom" element={<ProfileTeacherClassrooms />} />
               <Route path="profile/attendance-book" element={<AttendanceListPage />} />
+              <Route path="attedance" element={<Attendance />} />
+              <Route path="dashboard" element={<StudentSummaryPage />} />
+            </Route>
             </Route>
           </Route>
           </Route>

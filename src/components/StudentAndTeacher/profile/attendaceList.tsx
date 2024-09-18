@@ -151,6 +151,7 @@ const AttendanceList = () => {
                   <TableRow>
                     <StyledTableCell>Name</StyledTableCell>
                     <StyledTableCell align="center">Username</StyledTableCell>
+                    <StyledTableCell align="center">mobile no</StyledTableCell>
                     <StyledTableCell align="center">Status</StyledTableCell>
                   </TableRow>
                 </TableHead>
@@ -162,6 +163,9 @@ const AttendanceList = () => {
                       </StyledTableCell>
                       <StyledTableCell align="center">
                         {ele.studentId ? ele.studentId.username : 'N/A'}
+                      </StyledTableCell>
+                      <StyledTableCell align="center">
+                        {ele.studentId ? ele.studentId.mobile : 'N/A'}
                       </StyledTableCell>
                       <StyledTableCell align="center">{ele.status}</StyledTableCell>
                     </StyledTableRow>

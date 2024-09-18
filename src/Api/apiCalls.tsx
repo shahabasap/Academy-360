@@ -300,6 +300,31 @@ async editTeacherProfile(teacherId: string, Data: any): Promise<any> {
       return error;
     }
   }
+  // fetching entire data for middleware---
+  async  ClassroomEntireData(id:string): Promise<any> {
+    try {
+      
+      const response: AxiosResponse<any> = await this.axiosInstance.get(`/classroom-data/${id}`);
+      
+      return response;
+     
+    } catch (error: unknown) {
+    
+      return error;
+    }
+  }
+  async  TeacherClassroomData(id:string): Promise<any> {
+    try {
+      
+      const response: AxiosResponse<any> = await this.axiosInstance.get(`/teacher/classroom-data/${id}`);
+      
+      return response;
+     
+    } catch (error: unknown) {
+    
+      return error;
+    }
+  }
   async  FetchTeacherClassrooms(id:string): Promise<any> {
     try {
     
@@ -383,6 +408,27 @@ async editTeacherProfile(teacherId: string, Data: any): Promise<any> {
       throw new Error('Failed to fetch teachers. Please try again later.');
     }
   }
+
+
+  // Classroom logout---
+  async LeaveClassroomAsStudent(): Promise<any> {
+    try {
+      const response: AxiosResponse<any> = await this.axiosInstance.get('/classroom-logout');
+      return response;
+    } catch (error) {
+      throw new Error('Failed to fetch teachers. Please try again later.');
+    }
+  }
+  async LeaveClassroomAsTeacher(): Promise<any> {
+    try {
+      const response: AxiosResponse<any> = await this.axiosInstance.get('/teacher/classroom-logout');
+      return response;
+    } catch (error) {
+      throw new Error('Failed to fetch teachers. Please try again later.');
+    }
+  }
+
+
   
 
 }

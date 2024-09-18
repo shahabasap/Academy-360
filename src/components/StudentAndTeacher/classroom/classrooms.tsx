@@ -36,7 +36,7 @@ const Classrooms: React.FC = () => {
 
         if (response?.status === 200) {
           setClassrooms(response.data);
-          console.log('data', classrooms);
+          
         } else {
           console.log(`Error: ${response?.data?.error || 'Failed to fetch classrooms'}`);
         }

@@ -19,9 +19,11 @@ import TeacherProfile from "../Pages/Teacher/Profile/Management";
 import TeacherClassrooms from "../Pages/Teacher/Classroom/Classrooms";
 import LandingPage from "../Pages/LandingPage";
 import StudentSummaryPage from "../Pages/Student/Dashboard/summary";
-import NotFound from "../components/ErrorPages/404";
+import NotAtutherized from "../components/ErrorPages/403";
 import StudentProfileManagement from "../Pages/Student/Profile/management";
 import UnlockClassroom from '../components/student/unlockClassroom'
+import NotFound from "../components/ErrorPages/404";
+import ProtectStudentClassroom from "./ProtectRoutes/ProtectStudentClassroom";
 
 
 
@@ -35,6 +37,7 @@ StudentRoute() {
       <Route element={<Navbar/>}>
       <Route path="/" element={<LandingPage />} />
       <Route path="*" element={<NotFound />} />
+      <Route path="/notAuthorized" element={<NotAtutherized />} />
       </Route>
       <Route path="/" element={<RoleProvider role="Student" /> }>
     
@@ -46,14 +49,16 @@ StudentRoute() {
           <Route path="forgotpassword" element={<Fogotpassword />} />
           <Route path="resetpassword/:token" element={<Resetpassword />} />
         </Route>
-        <Route element={<StudentProtectRoute />}>\
+        <Route element={<StudentProtectRoute />}>
         <Route element={<Navbar/>}>
-          <Route path="dashboard" element={<StudentSummaryPage />} />
           <Route path="unlock-classroom" element={<UnlockClassroom />} />
           <Route path="classroom" element={<TeacherClassrooms />} />
           <Route path="profile" element={<TeacherProfileOverview />} />
           <Route path="profile/management" element={<StudentProfileManagement/>} />
           <Route path="profile/classroom" element={<ProfileTeacherClassrooms />} />
+          <Route element={<ProtectStudentClassroom/>}>
+          <Route path="dashboard" element={<StudentSummaryPage />} />
+          </Route>
           </Route>
           </Route>
           </Route>

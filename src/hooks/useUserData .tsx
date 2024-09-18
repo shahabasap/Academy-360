@@ -13,9 +13,9 @@ function useUserData (Role:string):{user:FormState | null}{
     const location = useLocation();
     const navigate = useNavigate();
     const teacher=useSelector(TeacherData)
-    const teacherId=teacher._id
+    const teacherId=teacher?._id
     const student=useSelector(userData)
-    const studentId =student._id
+    const studentId =student?._id
 
 
     const [user, setUser] = useState(null);
